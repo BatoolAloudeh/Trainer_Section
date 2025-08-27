@@ -1,10 +1,12 @@
-// lib/screen/Home/Settings/SettingsPage.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../Bloc/cubit/Settings/DarkMode/ChangeMode.dart';
 import '../../../constant/ui/Colors/colors.dart';
-import '../../../constant/ui/General constant/ConstantUi.dart'; // AppSidebar, SidebarItem
+import '../../../constant/ui/General constant/ConstantUi.dart';
+import '../../../constant/ui/language1.dart';
+import '../../../localization/local_cubit/local_cubit.dart'; // AppSidebar, SidebarItem
 
 class SettingsPage extends StatefulWidget {
   static const routeName = '/settings';
@@ -15,8 +17,16 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  String _lang = 'English';
+  // نحتفظ بالقيمة الداخلية كـ "Arabic" أو "English" فقط للتحكم بالقيمة
+  late String _lang;
   final List<String> _langs = ['English', 'Arabic'];
+
+  @override
+  void initState() {
+    super.initState();
+    final code = context.read<LocaleCubit>().state.languageCode;
+    _lang = (code == 'ar') ? 'Arabic' : 'English';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +46,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Settings',
+                      AppLocalizations.of(context)?.translate("settings") ?? "Settings",
                       style: TextStyle(
                         fontSize: 32.sp,
                         fontWeight: FontWeight.bold,
@@ -65,23 +75,31 @@ class _SettingsPageState extends State<SettingsPage> {
                           Icon(Icons.language, color: AppColors.purple, size: 28.sp),
                           SizedBox(width: 16.w),
                           Text(
-                            'Language:',
+                            AppLocalizations.of(context)?.translate("language") ?? "Language",
                             style: TextStyle(fontSize: 18.sp, color: AppColors.darkBlue),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           DropdownButton<String>(
                             value: _lang,
                             icon: Icon(Icons.arrow_drop_down, color: AppColors.darkBlue),
-                            items: _langs
-                                .map((l) => DropdownMenuItem(
-                              value: l,
-                              child: Text(l, style: TextStyle(fontSize: 16.sp)),
-                            ))
-                                .toList(),
+                            // نعرض النصوص مترجمة داخل العناصر
+                            items: _langs.map((l) {
+                              final translated = l == 'Arabic'
+                                  ? (AppLocalizations.of(context)?.translate("arabic") ?? "Arabic")
+                                  : (AppLocalizations.of(context)?.translate("english") ?? "English");
+                              return DropdownMenuItem(
+                                value: l,
+                                child: Text(translated, style: TextStyle(fontSize: 16.sp)),
+                              );
+                            }).toList(),
                             onChanged: (v) {
                               if (v == null) return;
                               setState(() => _lang = v);
-
+                              if (v == 'Arabic') {
+                                context.read<LocaleCubit>().toArabic();
+                              } else {
+                                context.read<LocaleCubit>().toEnglish();
+                              }
                             },
                           ),
                         ],
@@ -117,10 +135,10 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
                               SizedBox(width: 16.w),
                               Text(
-                                'Dark Mode',
+                                AppLocalizations.of(context)?.translate("Dark Mode") ?? "Dark Mode",
                                 style: TextStyle(fontSize: 18.sp, color: AppColors.darkBlue),
                               ),
-                              Spacer(),
+                              const Spacer(),
                               Switch(
                                 value: isDark,
                                 activeColor: AppColors.purple,
@@ -131,7 +149,6 @@ class _SettingsPageState extends State<SettingsPage> {
                         );
                       },
                     ),
-
                   ],
                 ),
               ),
@@ -142,135 +159,3 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 }
-
-
-
-
-
-
-
-//
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import '../../../Bloc/cubit/Settings/DarkMode/ChangeMode.dart';
-//
-// class SettingsScreen extends StatefulWidget {
-//   @override
-//   State<StatefulWidget> createState() {
-//     return SettingsScreenState();
-//   }
-// }
-//
-// class SettingsScreenState extends State<SettingsScreen> {
-//   // Language _language = Language();
-//   // List<String> _languages = ['Arabic', 'English'];
-//   // String? selectedLanguage;
-//   //
-//   // @override
-//   // void initState() {
-//   //   super.initState();
-//   //   _initLanguage();
-//   // }
-//   //
-//   // void _initLanguage() async {
-//   //   SharedPreferences pref = await SharedPreferences.getInstance();
-//   //   String? savedLanguage = pref.getString(_language.languagee());
-//   //
-//   //   if (savedLanguage != null) {
-//   //     _language.setLang(savedLanguage);
-//   //     setState(() {
-//   //       selectedLanguage = savedLanguage;
-//   //     });
-//   //   }
-//   // }
-//
-//   // void _saveLanguage(String language) async {
-//   //   SharedPreferences prefs = await SharedPreferences.getInstance();
-//   //   await prefs.setString(_language.languagee(), language);
-//   //   _language.setLang(language);
-//   // }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text("Settings"
-//             // _language.Setting()
-//
-//         ),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//
-//             // خيار تبديل الوضع
-//             ListTile(
-//               leading: Icon(Icons.brightness_6),
-//               // title: Text(_language.Toggle()),
-//               trailing: BlocBuilder<ThemeCubit, ThemeMode>(
-//                 builder: (context, themeMode) {
-//                   return Switch(
-//                     value: themeMode == ThemeMode.dark,
-//                     onChanged: (value) {
-//                       context.read<ThemeCubit>().toggle();
-//                     },
-//                   );
-//                 },
-//               ),
-//             ),
-//             Divider(),
-//
-//             // خيار تبديل اللغة
-//             ListTile(
-//               leading: Icon(Icons.language),
-//               // title: Text(_language.ChangeLanguage()),
-//               // subtitle: Text(selectedLanguage ?? 'Select a language'),
-//               // trailing: DropdownButton<String>(
-//               //   value: selectedLanguage,
-//               //   underline: SizedBox(),
-//               //   icon: Icon(Icons.arrow_drop_down),
-//               //   items: _languages.map((lang) {
-//               //     return DropdownMenuItem<String>(
-//               //       value: lang,
-//               //       child: Text(lang),
-//               //     );
-//               //   }).toList(),
-//               //   onChanged: (String? newLang) {
-//               //     if (newLang != null) {
-//               //       setState(() {
-//               //         selectedLanguage = newLang;
-//               //       });
-//               //       _saveLanguage(newLang); // حفظ اللغة
-//               //     }
-//               //   },
-//               // ),
-//             ),
-//
-//             Divider(),
-//
-//             // زر الحفظ
-//             // Center(child:
-//             // ElevatedButton(
-//             //   onPressed: () {
-//             //     // Navigator.pop(context, selectedLanguage); // إعادة اللغة المحددة إلى Dashboard
-//             //   },
-//             //   child:
-//             //
-//             //   Text(_language.Save()),
-//             //   style: ElevatedButton.styleFrom(
-//             //     backgroundColor: greenColor1,
-//             //     foregroundColor: Colors.white,
-//             //     padding: EdgeInsets.symmetric(horizontal: 200, vertical: 12),
-//             //   ),
-//             // )
-//             //   ,
-//             // ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

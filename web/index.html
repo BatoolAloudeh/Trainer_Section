@@ -107,9 +107,6 @@
 
 
 
-
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -117,74 +114,45 @@
     <meta charset="UTF-8">
     <title>Trainer Section</title>
     <link rel="manifest" href="manifest.json">
-
 </head>
 <body>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-    import {
-      getMessaging,
-      getToken,
-      onMessage,
-      isSupported
-    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-messaging.js";
+    import { isSupported } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-messaging.js";
 
     const firebaseConfig = {
-      apiKey:    "AIzaSyBrBrrP8RmHbdj0CA9aXhonShhB10k0ryo",
-      authDomain:"graduationproject-3d3b0.firebaseapp.com",
+      apiKey: "AIzaSyBrBrrP8RmHbdj0CA9aXhonShhB10k0ryo",
+      authDomain: "graduationproject-3d3b0.firebaseapp.com",
       projectId: "graduationproject-3d3b0",
-      storageBucket:"graduationproject-3d3b0.firebasestorage.app",
-      messagingSenderId:"425903761784",
-      appId:     "1:425903761784:web:ce5370b117d9b6a78f808d"
+      storageBucket: "graduationproject-3d3b0.firebasestorage.app",
+      messagingSenderId: "425903761784",
+      appId: "1:425903761784:web:ce5370b117d9b6a78f808d"
     };
 
-    // 1) تهيئة Firebase
+    // Firebase init
     const app = initializeApp(firebaseConfig);
 
     (async () => {
-      if (!await isSupported()) {
-        console.warn("🚫 FCM Web غير مدعوم");
-        return;
-      }
+      const supported = await isSupported();
+      console.log("isSupported:", supported);
+      if (!supported) return;
+
       if (!('serviceWorker' in navigator)) {
         console.error("🚫 المتصفّح لا يدعم Service Workers");
         return;
       }
 
-      // 2) تسجيل SW
-      const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js');
-      console.log("✅ SW مسجّل:", reg);
+      // ✅ سجّل الـ SW بمسار مطلق لضمان الـ scope من الجذر
+      const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      console.log("✅ SW registered. scope:", reg.scope);
 
-      // 3) اطلب إذن الإشعارات
+      // ✅ انتظر حتى يصبح SW جاهزًا
+      await navigator.serviceWorker.ready;
+
+      // ✅ اطلب إذن الإشعارات فقط (بدون getToken هنا)
       const perm = await Notification.requestPermission();
-      if (perm !== 'granted') {
-        console.error("🚫 تم رفض إذن الإشعارات");
-        return;
-      }
-
-      // 4) احصل على التوكن فوراً بعد تسجيل الـ SW
-      const messaging = getMessaging(app);
-      try {
-        const currentToken = await getToken(messaging, {
-          vapidKey: 'BMUIu0ik_OZJ9r9n3GPXib5fouwP02aKUqHBPJZFio406nmC_henlk7OtEco9fc5xd7Q3q_tZM0RuP6oBBPqTPc',
-          serviceWorkerRegistration: reg
-        });
-        if (currentToken) {
-          console.log("🔑 FCM Token:", currentToken);
-          // TODO: أرسل currentToken إلى السيرفرك بالخلفية
-        } else {
-          console.warn("⚠️ لم يتم إنشاء توكن — حاول إعادة تحميل الصفحة");
-        }
-      } catch (e) {
-        console.error("❌ خطأ أثناء getToken():", e);
-      }
-
-      // 5) استماع للـ messages في الـ foreground
-      onMessage(messaging, payload => {
-        console.log("📬 رسالة واردة (foreground):", payload);
-        // هنا يمكنك عرض Snackbar أو Notification API
-      });
+      console.log("Notification permission:", perm);
     })().catch(e => console.error("Firebase init failed:", e));
 </script>
 

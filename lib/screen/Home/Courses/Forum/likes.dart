@@ -1,3 +1,7 @@
+
+
+
+
 // lib/screens/likes_page.dart
 
 import 'package:flutter/material.dart';
@@ -6,6 +10,7 @@ import 'package:image_network/image_network.dart';
 
 import '../../../../constant/ui/Colors/colors.dart';
 import '../../../../constant/ui/General constant/ConstantUi.dart';
+import '../../../../localization/app_localizations.dart';
 
 class LikesPage extends StatelessWidget {
   final List<User> likes;
@@ -20,7 +25,6 @@ class LikesPage extends StatelessWidget {
         children: [
           const AppSidebar(selectedItem: SidebarItem.courses,),
 
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,11 +32,10 @@ class LikesPage extends StatelessWidget {
 
                 SizedBox(height: 24.h),
 
-
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24.w),
                   child: Text(
-                    '${likes.length} Likes',
+                    '${likes.length} ${AppLocalizations.of(context)?.translate("likes_count") ?? "Likes"}',
                     style: TextStyle(
                       fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
@@ -42,7 +45,6 @@ class LikesPage extends StatelessWidget {
                 ),
 
                 SizedBox(height: 16.h),
-
 
                 Expanded(
                   child: likes.isEmpty
@@ -57,7 +59,7 @@ class LikesPage extends StatelessWidget {
                         ),
                         SizedBox(height: 20.h),
                         Text(
-                          'No Likes at this time',
+                          AppLocalizations.of(context)?.translate("no_likes") ?? 'No Likes at this time',
                           style: TextStyle(
                             fontSize: 18.sp,
                             fontWeight: FontWeight.bold,
@@ -66,7 +68,7 @@ class LikesPage extends StatelessWidget {
                         ),
                         SizedBox(height: 8.h),
                         Text(
-                          'Search to view more items',
+                          AppLocalizations.of(context)?.translate("search_more") ?? 'Search to view more items',
                           style: TextStyle(
                             fontSize: 14.sp,
                             color: AppColors.t2,
@@ -86,14 +88,9 @@ class LikesPage extends StatelessWidget {
                         contentPadding: EdgeInsets.symmetric(
                             horizontal: 24.w, vertical: 8.h),
                         leading:
-                        // CircleAvatar(
-                        //   radius: 24.r,
-                        //   backgroundImage: AssetImage(user.avatar),
-                        // ),
                         CircleAvatar(
                           radius: 24.r,
                           child: ClipOval(
-
                             child: user.avatar != null
                                 ? ImageNetwork(
                               image: user.avatar,

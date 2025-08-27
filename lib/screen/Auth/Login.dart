@@ -10,7 +10,9 @@ import 'package:trainer_section/screen/Home/Courses/MainPage/ShowCourses.dart';
 import '../../constant/constantKey/key.dart';
 import '../../constant/ui/Colors/colors.dart';
 import '../../constant/ui/Sizes/sizes.dart';
+import '../../localization/app_localizations.dart';
 import '../../network/local/cacheHelper.dart';
+
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -95,7 +97,7 @@ class LoginScreenState extends State<LoginScreen> {
           ),
         ),
         // Right Side - Form
-        // بعد
+
         Expanded(
           flex: 1,
           child: SingleChildScrollView(
@@ -146,7 +148,7 @@ class LoginScreenState extends State<LoginScreen> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 5.w),
           child: Text(
-            'Login',
+            AppLocalizations.of(context)?.translate("Login") ?? "Login",
             style: TextStyle(
               color: AppColors.blue,
               fontSize: AppSize.l2121,
@@ -157,12 +159,16 @@ class LoginScreenState extends State<LoginScreen> {
         SizedBox(height: 10),
         defaultFormField(
           keyboardtype: TextInputType.emailAddress,
-          text: "Email",
+          text:
+          AppLocalizations.of(context)?.translate("Email") ?? "Email"
+         ,
           prefix: Icons.email,
           controller: emailController,
           validate: (value) {
             if (value == null || value.isEmpty) {
-              return "No Email";
+              return
+                AppLocalizations.of(context)?.translate("No Email") ?? "No Email"
+                ;
             } else if (!RegExp(
                 r'^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$')
                 .hasMatch(value)) {
@@ -178,14 +184,20 @@ class LoginScreenState extends State<LoginScreen> {
 
         defaultFormField(
           keyboardtype: TextInputType.visiblePassword,
-          text: "password",
+          text:
+          AppLocalizations.of(context)?.translate("password") ?? "password"
+          ,
           prefix: Icons.lock,
           controller: passwordController,
           validate: (value) {
             if (value == null || value.isEmpty) {
-              return "No password";
+              return
+                AppLocalizations.of(context)?.translate("No password") ?? "No password"
+              ;
             } else if (value.length < 6) {
-              return 'Invalid password';
+              return
+                AppLocalizations.of(context)?.translate("Invalid password") ?? "Invalid password"
+               ;
             }
             return null;
           },
@@ -255,16 +267,48 @@ class LoginScreenState extends State<LoginScreen> {
                     child: state is LoginLoading
                         ? Center(child: CircularProgressIndicator(color: AppColors.white))
                         : defaultButton(
-                      text: 'Login',
-                      onPressed: () {
-                        if (formKey.currentState!.validate()) {
-                          context.read<LoginCubit>().login(
-                            email: emailController.text.trim(),
-                            password: passwordController.text,
-                            fcmToken: 'hhjj',
-                          );
-                        }
+                      text:
+                      AppLocalizations.of(context)?.translate("Login") ?? "Login"
+                      ,
+                      // داخل onPressed لزر Login
+                      onPressed: () async {
+                        if (!formKey.currentState!.validate()) return;
+
+                        context.read<LoginCubit>().login(
+                          email: emailController.text.trim(),
+                          password: passwordController.text,
+                        );
                       },
+
+
+
+                      // onPressed: () async {
+                      //   if (!formKey.currentState!.validate()) return;
+                      //
+                      //   // get FCM token
+                      //   String? fcmToken;
+                      //   try {
+                      //     if (kIsWeb) {
+                      //       fcmToken = await FirebaseMessaging.instance.getToken(
+                      //         vapidKey: 'BMUIu0ik_OZJ9r9n3GPXib5fouwP02aKUqHBPJZFio406nmC_henlk7OtEco9fc5xd7Q3q_tZM0RuP6oBBPqTPc',
+                      //       );
+                      //     } else {
+                      //       fcmToken = await FirebaseMessaging.instance.getToken();
+                      //     }
+                      //     debugPrint('FCM token when logging in: $fcmToken');
+                      //   } catch (e) {
+                      //     debugPrint('FCM getToken error: $e');
+                      //     fcmToken = null;
+                      //   }
+                      //
+                      //   // call cubit with fcm token
+                      //   context.read<LoginCubit>().login(
+                      //     email: emailController.text.trim(),
+                      //     password: passwordController.text,
+                      //     // fcmToken: fcmToken!,
+                      //   );
+                      // },
+
                       background: AppColors.white,
                     ),
                   ),
@@ -279,11 +323,12 @@ class LoginScreenState extends State<LoginScreen> {
 Expanded(
   child:
                      Text(
-                            "You haven't verified your account. Verify it then login again.",
+                       AppLocalizations.of(context)?.translate("You haven't verified your account. Verify it then login again.") ?? "You haven't verified your account. Verify it then login again."
+                            ,
                             style: TextStyle(color: AppColors.orange),
                           ),),
 
-                        // زرّ الصفحة
+
 
                         TextButton(
                           onPressed: () {
@@ -292,7 +337,9 @@ Expanded(
                               MaterialPageRoute(builder: (_) => CheckCodeScreen()),
                             );
                           },
-                          child: Text('Verification Page'),
+                          child: Text(
+                              AppLocalizations.of(context)?.translate("Verification Page") ?? "Verification Page"
+                             ),
                         ),
                       ],
                     ),

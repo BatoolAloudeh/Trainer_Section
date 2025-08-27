@@ -5,11 +5,14 @@ import 'package:image_network/image_network.dart';
 import 'package:trainer_section/constant/constantKey/key.dart';
 import 'package:trainer_section/constant/ui/Colors/colors.dart';
 import 'package:trainer_section/screen/Settings/DarkMode/SettingPage.dart';
+import '../../../localization/app_localizations.dart';
 import '../../../models/tests/create test.dart';
 import '../../../network/local/cacheHelper.dart';
+import '../../../screen/Auth/logout.dart';
 import '../../../screen/Calendar/calendar.dart';
 import '../../../screen/Home/Courses/MainPage/ShowCourses.dart';
 import '../../../screen/Home/Profiles/Trainer.dart';
+import '../../../screen/notification/notification.dart';
 
 
 Widget defaultFormField({
@@ -167,6 +170,7 @@ Widget _sidebarItem(
               title,
               style: TextStyle(color: AppColors.white, fontSize: 14.sp),
             ),
+
           ],
         ),
       ),
@@ -174,7 +178,10 @@ Widget _sidebarItem(
   }
 
 
-enum SidebarItem { courses, Profile, search, calendar, settings }
+
+
+
+enum SidebarItem { courses, Profile, search, calendar, settings, logout, notifications }
 
 class AppSidebar extends StatelessWidget {
   final SidebarItem selectedItem;
@@ -182,17 +189,17 @@ class AppSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final token     = CacheHelper.getData(key: TOKENKEY)      as String?;
+    final token = CacheHelper.getData(key: TOKENKEY) as String?;
     final trainerId = CacheHelper.getData(key: 'trainer_id') as int?;
-    final userName  = CacheHelper.getData(key: 'user_name')  as String? ?? '';
+    final userName = CacheHelper.getData(key: 'user_name') as String? ?? '';
     final userPhoto = CacheHelper.getData(key: 'user_photo') as String?; // may be null
-    String photoUrl = userPhoto!= null
-        ? "$BASE_URL$userPhoto"
-        : "";
-    // ارتفاع كل صف
-    final double itemHeight = 50.h;
-    // نصف الارتفاع لاستخدامه كـ radius
+    String photoUrl = userPhoto != null ? "$BASE_URL$userPhoto" : "";
+
+    final double itemHeight = 100.h;
     final double radius = itemHeight / 2;
+
+    // مهيأ الترجمة
+    final tr = AppLocalizations.of(context)?.translate;
 
     return Container(
       width: 200.w,
@@ -200,44 +207,39 @@ class AppSidebar extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 40.h),
       child: Column(
         children: [
-
-
-
-      InkWell(
-      borderRadius: BorderRadius.circular(0), // حتى يتبع الدائرة
-
-      onDoubleTap: (){
-        if (token != null && trainerId != null) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => TrainerProfilePage(
-                token: token, idTrainer: trainerId,
-
+          InkWell(
+            borderRadius: BorderRadius.circular(0),
+            onDoubleTap: () {
+              if (token != null && trainerId != null) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => TrainerProfilePage(
+                      token: token,
+                      idTrainer: trainerId,
+                    ),
+                  ),
+                );
+              }
+            },
+            child: CircleAvatar(
+              radius: 25,
+              child: ClipOval(
+                child: userPhoto != null
+                    ? ImageNetwork(
+                  image: photoUrl,
+                  width: 50,
+                  height: 50,
+                  fitAndroidIos: BoxFit.cover,
+                )
+                    : Icon(Icons.person, size: 20),
               ),
             ),
-          );}
-        },
-      child:
-
-              CircleAvatar(
-                radius: 25,
-                child:
-                ClipOval(
-                  child: userPhoto  != null
-                      ? ImageNetwork(
-                    image: photoUrl,
-                    width: 50,
-                    height: 50,
-                    fitAndroidIos: BoxFit.cover,
-                  )
-                      : Icon(Icons.person, size: 20),
-                ),),),
-
-
-
+          ),
           SizedBox(height: 12.h),
           Text(
-            userName.isNotEmpty ? userName : 'Trainer',
+            userName.isNotEmpty
+                ? userName
+                : tr?.call("Trainer") ?? "Trainer",
             style: TextStyle(
               color: AppColors.white,
               fontSize: 18.sp,
@@ -245,57 +247,64 @@ class AppSidebar extends StatelessWidget {
             ),
           ),
           SizedBox(height: 40.h),
-          // بنية العناصر
+
           _sidebarItem(
             context,
             icon: Icons.menu_book,
-            label: 'Courses',
+            label: tr?.call('Courses') ?? 'Courses',
             item: SidebarItem.courses,
             page: (token != null && trainerId != null)
                 ? CoursesDashboard(token: token, idTrainer: trainerId)
-                : Center(child: Text('Please login')),
+                : Center(child: Text(tr?.call('Please login') ?? 'Please login')),
             itemHeight: itemHeight,
             radius: radius,
           ),
           _sidebarItem(
             context,
             icon: Icons.person_pin_outlined,
-            label: 'Profile',
+            label: tr?.call('Profile') ?? 'Profile',
             item: SidebarItem.Profile,
-            page: (token != null )
-                ? TrainerProfilePage(token: token,idTrainer: trainerId!,)
-                : Center(child: Text('Please login')),
+            page: (token != null)
+                ? TrainerProfilePage(token: token, idTrainer: trainerId!)
+                : Center(child: Text(tr?.call('Please login') ?? 'Please login')),
             itemHeight: itemHeight,
             radius: radius,
           ),
-          // _sidebarItem(
-          //   context,
-          //   icon: Icons.search,
-          //   label: 'Search',
-          //   item: SidebarItem.search,
-          //   page: const SearchPage(),
-          //   itemHeight: itemHeight,
-          //   radius: radius,
-          // ),
           _sidebarItem(
             context,
             icon: Icons.calendar_today,
-            label: 'Calendar',
+            label: tr?.call('Calendar') ?? 'Calendar',
             item: SidebarItem.calendar,
-
             page: (token != null && trainerId != null)
-                ? CalendarPage(token: token,)
-                : Center(child: Text('Please login')),
+                ? CalendarPage(token: token)
+                : Center(child: Text(tr?.call('Please login') ?? 'Please login')),
+            itemHeight: itemHeight,
+            radius: radius,
+          ),
+          _sidebarItem(
+            context,
+            icon: Icons.notifications_active_outlined,
+            label: tr?.call('Notifications') ?? 'Notifications',
+            item: SidebarItem.notifications,
+            page: NotificationsPage(),
             itemHeight: itemHeight,
             radius: radius,
           ),
           _sidebarItem(
             context,
             icon: Icons.list_alt,
-            label: 'Tests',
+            label: tr?.call('Settings') ?? 'Settings',
             item: SidebarItem.settings,
             page: const SettingsPage(),
-
+            itemHeight: itemHeight,
+            radius: radius,
+          ),
+          _sidebarItem(
+            context,
+            icon: Icons.logout_rounded,
+            label: tr?.call('Logout') ?? 'Logout',
+            item: SidebarItem.logout,
+            page: LogoutPage(),
             itemHeight: itemHeight,
             radius: radius,
           ),
@@ -342,7 +351,9 @@ class AppSidebar extends StatelessWidget {
             Icon(
               icon,
               size: 20.sp,
-              color: isSelected ? AppColors.purple : AppColors.white.withOpacity(0.8),
+              color: isSelected
+                  ? AppColors.purple
+                  : AppColors.white.withOpacity(0.8),
             ),
             SizedBox(width: 12.w),
             Text(
@@ -350,7 +361,9 @@ class AppSidebar extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? AppColors.purple : AppColors.white.withOpacity(0.8),
+                color: isSelected
+                    ? AppColors.purple
+                    : AppColors.white.withOpacity(0.8),
               ),
             ),
           ],
@@ -359,6 +372,218 @@ class AppSidebar extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
+//
+// enum SidebarItem { courses, Profile, search, calendar, settings,logout ,notifications}
+//
+// class AppSidebar extends StatelessWidget {
+//   final SidebarItem selectedItem;
+//   const AppSidebar({Key? key, required this.selectedItem}) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final token     = CacheHelper.getData(key: TOKENKEY)      as String?;
+//     final trainerId = CacheHelper.getData(key: 'trainer_id') as int?;
+//     final userName  = CacheHelper.getData(key: 'user_name')  as String? ?? '';
+//     final userPhoto = CacheHelper.getData(key: 'user_photo') as String?; // may be null
+//     String photoUrl = userPhoto!= null
+//         ? "$BASE_URL$userPhoto"
+//         : "";
+//
+//     final double itemHeight = 100.h;
+//
+//     final double radius = itemHeight / 2;
+//
+//     return Container(
+//       width: 200.w,
+//       color: AppColors.purple,
+//       padding: EdgeInsets.symmetric(vertical: 40.h),
+//       child: Column(
+//         children: [
+//
+//
+//
+//       InkWell(
+//       borderRadius: BorderRadius.circular(0),
+//
+//       onDoubleTap: (){
+//         if (token != null && trainerId != null) {
+//           Navigator.of(context).push(
+//             MaterialPageRoute(
+//               builder: (_) => TrainerProfilePage(
+//                 token: token, idTrainer: trainerId,
+//
+//               ),
+//             ),
+//           );}
+//         },
+//       child:
+//
+//               CircleAvatar(
+//                 radius: 25,
+//                 child:
+//                 ClipOval(
+//                   child: userPhoto  != null
+//                       ? ImageNetwork(
+//                     image: photoUrl,
+//                     width: 50,
+//                     height: 50,
+//                     fitAndroidIos: BoxFit.cover,
+//                   )
+//                       : Icon(Icons.person, size: 20),
+//                 ),),),
+//
+//
+//
+//           SizedBox(height: 12.h),
+//           Text(
+//             userName.isNotEmpty ? userName : 'Trainer',
+//             style: TextStyle(
+//               color: AppColors.white,
+//               fontSize: 18.sp,
+//               fontWeight: FontWeight.bold,
+//             ),
+//           ),
+//           SizedBox(height: 40.h),
+//
+//           _sidebarItem(
+//             context,
+//             icon: Icons.menu_book,
+//             label: 'Courses',
+//             item: SidebarItem.courses,
+//             page: (token != null && trainerId != null)
+//                 ? CoursesDashboard(token: token, idTrainer: trainerId)
+//                 : Center(child: Text('Please login')),
+//             itemHeight: itemHeight,
+//             radius: radius,
+//           ),
+//           _sidebarItem(
+//             context,
+//             icon: Icons.person_pin_outlined,
+//             label: 'Profile',
+//             item: SidebarItem.Profile,
+//             page: (token != null )
+//                 ? TrainerProfilePage(token: token,idTrainer: trainerId!,)
+//                 : Center(child: Text('Please login')),
+//             itemHeight: itemHeight,
+//             radius: radius,
+//           ),
+//           // _sidebarItem(
+//           //   context,
+//           //   icon: Icons.search,
+//           //   label: 'Search',
+//           //   item: SidebarItem.search,
+//           //   page: const SearchPage(),
+//           //   itemHeight: itemHeight,
+//           //   radius: radius,
+//           // ),
+//           _sidebarItem(
+//             context,
+//             icon: Icons.calendar_today,
+//             label: 'Calendar',
+//             item: SidebarItem.calendar,
+//
+//             page: (token != null && trainerId != null)
+//                 ? CalendarPage(token: token,)
+//                 : Center(child: Text('Please login')),
+//             itemHeight: itemHeight,
+//             radius: radius,
+//           ),
+//           _sidebarItem(
+//             context,
+//             icon: Icons.list_alt,
+//             label: 'Settings',
+//             item: SidebarItem.settings,
+//             page: const SettingsPage(),
+//
+//             itemHeight: itemHeight,
+//             radius: radius,
+//           ),
+//           _sidebarItem(
+//             context,
+//             icon: Icons.notifications_active_outlined,
+//             label: 'Notifications',
+//             item: SidebarItem.notifications,
+//             page:  NotificationsPage(),
+//             itemHeight: itemHeight,
+//             radius: radius,
+//           ),
+//           _sidebarItem(
+//             context,
+//             icon: Icons.logout_rounded,
+//             label: 'Logout',
+//             item: SidebarItem.logout,
+//             // صفحة هوك صغيرة تفتح الديالوج ثم ترجع
+//             page: LogoutPage(),
+//             itemHeight: itemHeight,
+//             radius: radius,
+//           ),
+//
+//         ],
+//       ),
+//     );
+//   }
+//
+//   Widget _sidebarItem(
+//       BuildContext context, {
+//         required IconData icon,
+//         required String label,
+//         required SidebarItem item,
+//         required Widget page,
+//         required double itemHeight,
+//         required double radius,
+//       }) {
+//     final bool isSelected = item == selectedItem;
+//
+//     return InkWell(
+//       onTap: () {
+//         if (!isSelected) {
+//           Navigator.pushReplacement(
+//             context,
+//             MaterialPageRoute(builder: (_) => page),
+//           );
+//         }
+//       },
+//       child: Container(
+//         height: itemHeight,
+//         width: double.infinity,
+//         decoration: isSelected
+//             ? BoxDecoration(
+//           color: Theme.of(context).scaffoldBackgroundColor,
+//           borderRadius: BorderRadius.only(
+//             topLeft: Radius.circular(radius),
+//             bottomLeft: Radius.circular(radius),
+//           ),
+//         )
+//             : null,
+//         padding: EdgeInsets.symmetric(horizontal: 16.w),
+//         child: Row(
+//           children: [
+//             Icon(
+//               icon,
+//               size: 20.sp,
+//               color: isSelected ? AppColors.purple : AppColors.white.withOpacity(0.8),
+//             ),
+//             SizedBox(width: 12.w),
+//             Text(
+//               label,
+//               style: TextStyle(
+//                 fontSize: 14.sp,
+//                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+//                 color: isSelected ? AppColors.purple : AppColors.white.withOpacity(0.8),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 
 
@@ -473,9 +698,9 @@ class CourseCard extends StatelessWidget {
 
 class PostCard extends StatelessWidget {
   final Post post;
-  final VoidCallback onLike;         // فقط للتبديل
-  final VoidCallback onShowLikes;    // للتنقّل إلى LikesPage
-  final VoidCallback onComment;      // للتنقّل إلى CommentsPage
+  final VoidCallback onLike;
+  final VoidCallback onShowLikes;
+  final VoidCallback onComment;
 
   const PostCard({
     Key? key,
@@ -499,7 +724,7 @@ class PostCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // HEADER: صورة واسم وتاريخ
+
           Row(
             children: [
               // CircleAvatar(
@@ -543,16 +768,16 @@ class PostCard extends StatelessWidget {
 
           SizedBox(height: 12.h),
 
-          // محتوى المنشور
+
           Text(post.content,
               style: TextStyle(fontSize: 16.sp, color: AppColors.t3)),
 
           SizedBox(height: 16.h),
 
-          // أزرار التعليق والإعجاب
+
           Row(
             children: [
-              // تعليق
+
               GestureDetector(
                 onTap: onComment,
                 child: Row(
@@ -580,7 +805,7 @@ class PostCard extends StatelessWidget {
 
               SizedBox(width: 4.w),
 
-              // عدد الإعجابات (اضغط للذهاب للصفحة)
+
               GestureDetector(
                 onTap: onShowLikes,
                 child: Text('${post.likedBy.length}',
@@ -669,7 +894,7 @@ class _PollDialogState extends State<PollDialog> {
   @override
   void initState() {
     super.initState();
-    // نبدأ بحقلين
+
     _addOption();
     _addOption();
   }
@@ -714,7 +939,7 @@ class _PollDialogState extends State<PollDialog> {
                       color: AppColors.darkBlue)),
               SizedBox(height: 16.h),
 
-              // السؤال
+
               TextField(
                 controller: _questionCtrl,
                 decoration: InputDecoration(
@@ -768,7 +993,7 @@ class _PollDialogState extends State<PollDialog> {
                 SizedBox(height: 12.h),
               ],
 
-              // زر إضافة خيار
+
               Row(
                 children: [
                   ElevatedButton.icon(
@@ -790,7 +1015,7 @@ class _PollDialogState extends State<PollDialog> {
 
               SizedBox(height: 24.h),
 
-              // أزرار الغلق والإنشاء
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -803,7 +1028,7 @@ class _PollDialogState extends State<PollDialog> {
                   ElevatedButton(
                     onPressed: _canCreate
                         ? () {
-                      // نبني QuizQuestion ونرجعه
+
                       final options = _optionCtrls
                           .asMap()
                           .entries

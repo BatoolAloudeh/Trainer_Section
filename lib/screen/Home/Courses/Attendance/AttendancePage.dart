@@ -1,4 +1,4 @@
-// lib/screens/sessions/AttendancePage.dart
+// lib/screens/sessions/AttendancePage.dart  (refined like Marks page – same tasks)
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,200 +8,10 @@ import 'package:image_network/image_network.dart';
 import '../../../../Bloc/cubit/Attendence/attendence.dart';
 import '../../../../Bloc/states/Attendence/attendence.dart';
 import '../../../../constant/constantKey/key.dart';
-
 import '../../../../constant/ui/Colors/colors.dart';
+import '../../../../localization/app_localizations.dart';
 import '../../../../models/Attendence/attendence.dart';
-//
-//
-// class AttendancePage extends StatefulWidget {
-//   final int sessionId;
-//   final String token;
-//   final List<Map<String, String>> students;
-//
-//   const AttendancePage({
-//     Key? key,
-//     required this.sessionId,
-//     required this.token,
-//     required this.students, required int trainerId,
-//   }) : super(key: key);
-//
-//   @override
-//   _AttendancePageState createState() => _AttendancePageState();
-// }
-//
-// class _AttendancePageState extends State<AttendancePage> {
-//   late AttendanceCubit _cubit;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _cubit = AttendanceCubit()
-//       ..fetchAttendance(
-//         token: widget.token,
-//         sessionId: widget.sessionId,
-//       );
-//   }
-//
-//   @override
-//   void dispose() {
-//     _cubit.close();
-//     super.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     ScreenUtil.init(context);
-//
-//     return BlocProvider.value(
-//       value: _cubit,
-//       child: BlocListener<AttendanceCubit, AttendanceState>(
-//         listener: (ctx, state) {
-//           if (state is AttendanceMarked ||
-//               state is AttendanceUpdated ||
-//               state is AttendanceDeleted) {
-//             // بعد أي تعديل نعيد جلب البيانات
-//             WidgetsBinding.instance.addPostFrameCallback((_) {
-//               ctx.read<AttendanceCubit>().fetchAttendance(
-//                 token: widget.token,
-//                 sessionId: widget.sessionId,
-//               );
-//             });
-//           }
-//         },
-//         child: Scaffold(
-//           backgroundColor: AppColors.w1,
-//           appBar: AppBar(
-//             title: Text('Attendance', style: TextStyle(color: AppColors.darkBlue)),
-//             backgroundColor: AppColors.w1,
-//             iconTheme: IconThemeData(color: AppColors.darkBlue),
-//             elevation: 0,
-//           ),
-//           body: BlocBuilder<AttendanceCubit, AttendanceState>(
-//             builder: (ctx, state) {
-//               if (state is AttendanceLoading) {
-//                 return const Center(child: CircularProgressIndicator());
-//               }
-//               if (state is AttendanceError) {
-//                 return Center(child: Text(state.message));
-//               }
-//               if (state is AttendanceLoaded) {
-//                 final records = state.list;
-//                 return ListView.separated(
-//                   padding: EdgeInsets.all(16.w),
-//                   itemCount: widget.students.length,
-//                   separatorBuilder: (_, __) => SizedBox(height: 12.h),
-//
-//                   // داخل ListView.builder:
-//                   itemBuilder: (_, idx) {
-//                     final s = widget.students[idx];
-//                     final sid = int.parse(s['id']!);
-//
-//                     // 1) نحاول إيجاد سجل الحضور:
-//                     AttendanceModel? rec;
-//                     try {
-//                       rec = records.firstWhere((r) => r.studentId == sid);
-//                     } catch (_) {
-//                       rec = null;
-//                     }
-//
-//                     // 2) نستخرج الحالة:
-//                     final isPresent = rec?.isPresent ?? false;
-//
-//                     return Card(
-//                       shape: RoundedRectangleBorder(
-//                         borderRadius: BorderRadius.circular(12.r),
-//                       ),
-//                       child: ListTile(
-//                         leading: CircleAvatar(
-//                           radius: 20.r,
-//                           backgroundImage: s['photo']!.isNotEmpty
-//                               ? NetworkImage('$BASE_URL${s['photo']}')
-//                               : null,
-//                           child: s['photo']!.isEmpty ? Icon(Icons.person) : null,
-//                         ),
-//                         title: Text(s['name']!, style: TextStyle(fontSize: 16.sp)),
-//                         subtitle: Text(s['class']!, style: TextStyle(color: AppColors.t2)),
-//                         trailing: Row(
-//                           mainAxisSize: MainAxisSize.min,
-//                           children: [
-//                             // أيقونة الحضور/الغياب
-//                             GestureDetector(
-//                               onTap: () {
-//                                 if (rec == null) {
-//                                   // إذا لم يُسجَّل من قبل، نستخدم mark
-//                                   ctx.read<AttendanceCubit>().markAttendance(
-//                                     token: widget.token,
-//                                     sessionId: widget.sessionId,
-//                                     studentId: sid,
-//                                     isPresent: true,
-//                                   );
-//                                 } else {
-//                                   // وإلّا نحدّثه
-//                                   ctx.read<AttendanceCubit>().updateAttendance(
-//                                     token: widget.token,
-//                                     attendanceId: rec.id,
-//                                     isPresent: !isPresent,
-//                                   );
-//                                 }
-//                               },
-//                               child: Icon(
-//                                 isPresent
-//                                     ? Icons.check_circle
-//                                     : Icons.check_circle_outline,
-//                                 size: 28.sp,
-//                                 color: AppColors.orange,
-//                               ),
-//                             ),
-//
-//                             SizedBox(width: 16.w),
-//
-//                             // حذف بالسحب الطويل
-//                             if (rec != null)
-//                               GestureDetector(
-//                                 onLongPress: () {
-//                                   ctx.read<AttendanceCubit>().deleteAttendance(
-//                                     token: widget.token,
-//                                     attendanceId: rec!.id,
-//                                   );
-//                                 },
-//                                 child: Icon(
-//                                   Icons.delete_outline,
-//                                   size: 24.sp,
-//                                   color: Colors.redAccent,
-//                                 ),
-//                               ),
-//                           ],
-//                         ),
-//                       ),
-//                     );
-//                   },
-//
-//
-//                 );
-//               }
-//               return const SizedBox.shrink();
-//             },
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-
-
-
-
-
-
-
-
-
-
-
-
 import '../../../../constant/ui/General constant/ConstantUi.dart';
-
 
 class AttendancePage extends StatefulWidget {
   final int sessionId;
@@ -227,11 +37,20 @@ class _AttendancePageState extends State<AttendancePage> {
   @override
   void initState() {
     super.initState();
-    _cubit = AttendanceCubit()
-      ..fetchAttendance(
-          // token: widget.token,
-          sessionId: widget.sessionId);
+    _cubit = AttendanceCubit()..fetchAttendance(sessionId: widget.sessionId);
   }
+  String _resolveHeaderTitle(BuildContext context, String sessionName) {
+    // نص الترجمة قد يحتوي على {session}
+    final raw = AppLocalizations.of(context)?.translate("attendance_for_session")
+        ?? 'Attendance for "{session}"';
+    if (raw.contains('{session}')) {
+      // يستبدل placeholder ويمنع ظهور {session} حرفيًا
+      return raw.replaceAll('{session}', sessionName);
+    }
+    // لو الترجمة ما فيها placeholder نضيف الاسم يدويًا (اختر بدون علامات اقتباس)
+    return '$raw $sessionName';
+  }
+
 
   @override
   void dispose() {
@@ -241,204 +60,372 @@ class _AttendancePageState extends State<AttendancePage> {
 
   @override
   Widget build(BuildContext context) {
-
-    ScreenUtil.init(context,
-        designSize: const Size(1440, 1024), minTextAdapt: true);
+    ScreenUtil.init(context, designSize: const Size(1440, 1024), minTextAdapt: true);
+    final t = Theme.of(context);
 
     return BlocProvider.value(
       value: _cubit,
       child: BlocListener<AttendanceCubit, AttendanceState>(
         listener: (ctx, state) {
-          if (state is AttendanceMarked ||
-              state is AttendanceUpdated ||
-              state is AttendanceDeleted) {
-
+          if (state is AttendanceMarked || state is AttendanceUpdated || state is AttendanceDeleted) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              ctx.read<AttendanceCubit>().fetchAttendance(
-                // token: widget.token,
-                sessionId: widget.sessionId,
-              );
+              ctx.read<AttendanceCubit>().fetchAttendance(sessionId: widget.sessionId);
             });
           }
         },
         child: Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          backgroundColor: t.scaffoldBackgroundColor,
           body: Row(
             children: [
-
               const AppSidebar(selectedItem: SidebarItem.courses),
-
-
               Expanded(
-                child: Padding(
-                  padding: EdgeInsets.all(24.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-
-                      Row(
-                        children: [
-
-                          SizedBox(width: 8.w),
-                          Text(
-                            'Attendance for "${widget.sessionName}"',
-                            style: TextStyle(
-                              fontSize: 28.sp,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.darkBlue,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16.h),
-
-
-                      Expanded(
-                        child: BlocBuilder<AttendanceCubit, AttendanceState>(
-                          builder: (ctx, state) {
-                            if (state is AttendanceLoading) {
-                              return const Center(child: CircularProgressIndicator());
-                            }
-                            if (state is AttendanceError) {
-                              return Center(child: Text(state.message));
-                            }
-                            if (state is AttendanceLoaded) {
-                              final records = state.list;
-                              if (widget.students.isEmpty) {
-                                return Center(child: Text('No students'));
-                              }
-                              return ListView.separated(
-                                itemCount: widget.students.length,
-                                separatorBuilder: (_, __) => SizedBox(height: 12.h),
-                                itemBuilder: (_, idx) {
-                                  final s = widget.students[idx];
-                                  final sid = int.parse(s['id']!);
-
-
-                                  AttendanceModel? rec;
-                                  try {
-                                    rec = records.firstWhere((r) => r.studentId == sid);
-                                  } catch (_) {
-                                    rec = null;
-                                  }
-                                  final isPresent = rec?.isPresent ?? false;
-                                  String photoUrl = s['photo'] != null
-                                      ? "$BASE_URL${s['photo']}"
-                                      : "";
-                                  return Card(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12.r),
-                                    ),
-                                    child: ListTile(
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 16.w,
-                                        vertical: 8.h,
-                                      ),
-                                      leading:   CircleAvatar(
-                                        radius: 20,
-                                        child:
-                                        ClipOval(
-                                          child: s['photo']!  != null
-                                              ? ImageNetwork(
-                                            image: photoUrl,
-                                            width: 40,
-                                            height: 40,
-                                            fitAndroidIos: BoxFit.cover,
-                                          )
-                                              : Icon(Icons.person, size: 20),
-                                        ),),
-                                      title: Text(
-                                        s['name']!,
-                                        style: TextStyle(
-                                          fontSize: 18.sp,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      subtitle: Text(
-                                        s['class']!,
-                                        style: TextStyle(
-                                          fontSize: 14.sp,
-                                          color: AppColors.t2,
-                                        ),
-                                      ),
-                                      trailing: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          // ✔️ حاضر
-                                          GestureDetector(
-                                            onTap: () {
-                                              if (rec == null) {
-                                                _cubit.markAttendance(
-                                                  // token: widget.token,
-                                                  sessionId: widget.sessionId,
-                                                  studentId: sid,
-                                                  isPresent: true,
-                                                );
-                                              } else {
-                                                _cubit.updateAttendance(
-                                                  // token: widget.token,
-                                                  attendanceId: rec.id,
-                                                  isPresent: true,
-                                                );
-                                              }
-                                            },
-                                            child: Icon(
-                                              isPresent
-                                                  ? Icons.check_circle
-                                                  : Icons.check_circle_outline,
-                                              size: 24.sp,
-                                              color: isPresent
-                                                  ? AppColors.orange
-                                                  : AppColors.t2,
-                                            ),
-                                          ),
-                                          SizedBox(width: 16.w),
-
-                                          GestureDetector(
-                                            onTap: () {
-                                              if (rec == null) {
-                                                _cubit.markAttendance(
-                                                  // token: widget.token,
-                                                  sessionId: widget.sessionId,
-                                                  studentId: sid,
-                                                  isPresent: false,
-                                                );
-                                              } else {
-                                                _cubit.updateAttendance(
-                                                  // token: widget.token,
-                                                  attendanceId: rec.id,
-                                                  isPresent: false,
-                                                );
-                                              }
-                                            },
-                                            child: Icon(
-                                              !isPresent
-                                                  ? Icons.cancel
-                                                  : Icons.cancel_outlined,
-                                              size: 24.sp,
-                                              color: !isPresent
-                                                  ? AppColors.orange
-                                                  : AppColors.t2,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        t.scaffoldBackgroundColor,
+                        t.colorScheme.surfaceVariant.withOpacity(.25),
+                      ],
+                    ),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(24.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _HeaderBar(
+                          title: _resolveHeaderTitle(context, widget.sessionName),
+                          rightLabel: '${AppLocalizations.of(context)?.translate("students") ?? "Students"}: ${widget.students.length}',
                         ),
-                      ),
-                    ],
+
+                        SizedBox(height: 40.h),
+
+                        Expanded(
+                          child: BlocBuilder<AttendanceCubit, AttendanceState>(
+                            builder: (ctx, state) {
+                              if (state is AttendanceLoading) return const _LoadingState();
+                              if (state is AttendanceError) return _ErrorState(message: state.message);
+
+                              // خرائط للحضور الحالي لسرعة الوصول
+                              final Map<int, AttendanceModel> recordsByStudent = {};
+                              if (state is AttendanceLoaded) {
+                                for (final r in state.list) {
+                                  recordsByStudent[r.studentId] = r;
+                                }
+                              }
+
+                              if (widget.students.isEmpty) {
+                                return Center(
+                                  child: SingleChildScrollView(
+                                    padding: EdgeInsets.symmetric(vertical: 16.h),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.group_off,
+                                            size: 56.sp, color: t.colorScheme.onSurfaceVariant),
+                                        SizedBox(height: 8.h),
+                                        Text(AppLocalizations.of(context)?.translate("no_students") ??
+                                            "No students"),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              // نفس ستايل "Marks" — صفوف مخططة بلا Card
+                              return ScrollConfiguration(
+                                behavior: const MaterialScrollBehavior().copyWith(overscroll: false),
+                                child: ListView.separated(
+                                  padding: EdgeInsets.only(bottom: 24.h),
+                                  itemCount: widget.students.length,
+                                  separatorBuilder: (_, __) => SizedBox(height: 10.h),
+                                  itemBuilder: (_, idx) {
+                                    final s = widget.students[idx];
+                                    final sid = int.tryParse(s['id'] ?? '') ?? 0;
+
+                                    final rec = recordsByStudent[sid];
+                                    // ملاحظة: للحفاظ على نفس المنطق القديم، إذا لا يوجد سجل نترك الأيقونات غير مفعلة
+                                    final hasRecord = rec != null;
+                                    final isPresent = rec?.isPresent ?? false;
+
+                                    final photoPath = s['photo'];
+                                    final photoUrl =
+                                    (photoPath != null && photoPath.isNotEmpty) ? "$BASE_URL$photoPath" : '';
+
+                                    return _AttendanceRowStyle(
+                                      index: idx,
+                                      avatarUrl: photoUrl,
+                                      name: s['name'] ?? '-',
+                                      className: s['class'] ?? '-',
+                                      hasRecord: hasRecord,
+                                      isPresent: isPresent,
+                                      onMarkPresent: () {
+                                        if (rec == null) {
+                                          _cubit.markAttendance(
+                                            sessionId: widget.sessionId,
+                                            studentId: sid,
+                                            isPresent: true,
+                                          );
+                                        } else {
+                                          _cubit.updateAttendance(attendanceId: rec.id, isPresent: true);
+                                        }
+                                      },
+                                      onMarkAbsent: () {
+                                        if (rec == null) {
+                                          _cubit.markAttendance(
+                                            sessionId: widget.sessionId,
+                                            studentId: sid,
+                                            isPresent: false,
+                                          );
+                                        } else {
+                                          _cubit.updateAttendance(attendanceId: rec.id, isPresent: false);
+                                        }
+                                      },
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// ============= Header (نفس ستايل الحبة/الكبسولة المستخدمة) =============
+class _HeaderBar extends StatelessWidget {
+  final String title;
+  final String rightLabel;
+
+  const _HeaderBar({required this.title, required this.rightLabel});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.r),
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            AppColors.purple.withOpacity(.12),
+            AppColors.purple.withOpacity(.04),
+          ],
+        ),
+        border: Border.all(color: AppColors.darkBlue.withOpacity(.10)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(.06),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 22.sp,
+                fontWeight: FontWeight.w800,
+                color: AppColors.darkBlue,
+                letterSpacing: .2,
+              ),
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(.55),
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: AppColors.darkBlue.withOpacity(.06)),
+            ),
+            child: Text(
+              rightLabel,
+              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: AppColors.t2),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// ============= صفّ طالب بطريقة التقارير (بدون Card/إطار) =============
+class _AttendanceRowStyle extends StatelessWidget {
+  final int index;
+  final String avatarUrl;
+  final String name;
+  final String className;
+  final bool hasRecord; // هل لديه سجل حضور؟
+  final bool isPresent; // إذا كان لديه سجل: حاضر أم غائب؟
+  final VoidCallback onMarkPresent;
+  final VoidCallback onMarkAbsent;
+
+  const _AttendanceRowStyle({
+    required this.index,
+    required this.avatarUrl,
+    required this.name,
+    required this.className,
+    required this.hasRecord,
+    required this.isPresent,
+    required this.onMarkPresent,
+    required this.onMarkAbsent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+
+    final stripe = AppColors.purple.withOpacity(.06);
+    final bg = index.isEven ? stripe : Colors.transparent;
+
+    // ألوان الأيقونات: إن كان هناك سجل، فعّل اللون البرتقالي على الحالة المختارة
+    final presentColor = hasRecord
+        ? (isPresent ? AppColors.orange : t.colorScheme.onSurfaceVariant)
+        : t.colorScheme.onSurfaceVariant;
+    final absentColor = hasRecord
+        ? (!isPresent ? AppColors.orange : t.colorScheme.onSurfaceVariant)
+        : t.colorScheme.onSurfaceVariant;
+
+    return Container(
+      constraints: BoxConstraints(minHeight: 56.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(10.r),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Avatar
+          CircleAvatar(
+            radius: 18.r,
+            backgroundColor: t.colorScheme.primary.withOpacity(.12),
+            child: ClipOval(
+              child: avatarUrl.isNotEmpty
+                  ? ImageNetwork(
+                image: avatarUrl,
+                width: 36.r,
+                height: 36.r,
+                fitAndroidIos: BoxFit.cover,
+              )
+                  : Icon(Icons.person, size: 18.sp, color: t.colorScheme.primary),
+            ),
+          ),
+          SizedBox(width: 10.w),
+
+          // الاسم + الصف
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 320.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: t.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkBlue,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  className,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: t.textTheme.bodySmall?.copyWith(
+                    color: t.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const Spacer(),
+
+          // أزرار الحالة (أيقونات مخصّصة بدون دوائر)
+          Tooltip(
+            message: loc?.translate("present") ?? "Present",
+            child: IconButton(
+              onPressed: onMarkPresent,
+              icon: const Icon(Icons.check_circle_rounded),
+              color: presentColor,
+              splashRadius: 18,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
+            ),
+          ),
+          SizedBox(width: 8.w),
+          Tooltip(
+            message: loc?.translate("absent") ?? "Absent",
+            child: IconButton(
+              onPressed: onMarkAbsent,
+              icon: const Icon(Icons.cancel_rounded),
+              color: absentColor,
+              splashRadius: 18,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// ============= States =============
+class _LoadingState extends StatelessWidget {
+  const _LoadingState();
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CircularProgressIndicator(),
+          SizedBox(height: 12.h),
+          Text(loc?.translate("loading") ?? "Loading..."),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  final String message;
+  const _ErrorState({required this.message});
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.error_outline, size: 42.sp, color: Colors.redAccent),
+          SizedBox(height: 8.h),
+          Text(message, textAlign: TextAlign.center),
+        ],
       ),
     );
   }

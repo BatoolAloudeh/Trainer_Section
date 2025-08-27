@@ -9,8 +9,8 @@ import 'package:trainer_section/screen/Home/Courses/MainPage/show%20Sections.dar
 import '../../../../Bloc/cubit/Home/Courses/ShowCourses.dart';
 import '../../../../Bloc/states/Home/Courses/ShowCourses.dart';
 import '../../../../constant/constantKey/key.dart';
+import '../../../../localization/app_localizations.dart';
 import '../../../../models/Home/Courses/ShowCourses.dart';
-
 
 class CoursesDashboard extends StatefulWidget {
   final int idTrainer;
@@ -18,20 +18,18 @@ class CoursesDashboard extends StatefulWidget {
   const CoursesDashboard({Key? key, required this.token, required this.idTrainer}) : super(key: key);
 
   @override
-  _CoursesDashboardState createState() => _CoursesDashboardState(   idTrainer);
+  _CoursesDashboardState createState() => _CoursesDashboardState(idTrainer);
 }
 
 class _CoursesDashboardState extends State<CoursesDashboard> {
   @override
-
   final int idTrainer;
-  _CoursesDashboardState(  this.idTrainer);
+  _CoursesDashboardState(this.idTrainer);
+
   void initState() {
     super.initState();
-
     context.read<CoursesCubit>().fetchMyCourses();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +37,10 @@ class _CoursesDashboardState extends State<CoursesDashboard> {
       designSize: const Size(1440, 1024),
       minTextAdapt: true,
       builder: (_, __) => Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-
-          body: Row(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: Row(
           children: [
             const AppSidebar(selectedItem: SidebarItem.courses),
-
             // ===== Main Content =====
             Expanded(
               child: Padding(
@@ -56,35 +52,22 @@ class _CoursesDashboardState extends State<CoursesDashboard> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Courses',
+                          AppLocalizations.of(context)?.translate("courses") ?? "Courses",
                           style: TextStyle(
                             fontSize: 28.sp,
                             fontWeight: FontWeight.bold,
                             color: AppColors.darkBlue,
                           ),
                         ),
-                        Row(
-                          children: [
-                            Icon(Icons.notifications_none,
-                                size: 28.sp, color: AppColors.orange),
-                            SizedBox(width: 16.w),
-                            Icon(Icons.settings, size: 28.sp, color: AppColors.t3),
-                          ],
-                        ),
+
                       ],
                     ),
                     SizedBox(height: 24.h),
-                    SizedBox(height: 24.h),
-
-                    SizedBox(height: 24.h),
-
-
                     Expanded(
                       child: BlocBuilder<CoursesCubit, CoursesState>(
                         builder: (context, state) {
                           if (state is CoursesLoading) {
-                            return const Center(
-                                child: CircularProgressIndicator());
+                            return const Center(child: CircularProgressIndicator());
                           }
                           if (state is CoursesError) {
                             return Center(
@@ -95,17 +78,13 @@ class _CoursesDashboardState extends State<CoursesDashboard> {
                             );
                           }
                           if (state is CoursesLoaded) {
-
                             final sections = state.courses;
-
                             final Map<int, CourseDetail> uniqueCourses = {
-                              for (var sec in sections)
-                                sec.course.id: sec.course
+                              for (var sec in sections) sec.course.id: sec.course
                             };
                             final coursesList = uniqueCourses.values.toList();
 
                             return LayoutBuilder(
-
                               builder: (_, constraints) {
                                 int cross = constraints.maxWidth > 1200
                                     ? 4
@@ -115,9 +94,7 @@ class _CoursesDashboardState extends State<CoursesDashboard> {
 
                                 return GridView.builder(
                                   itemCount: coursesList.length,
-
-                                  gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: cross,
                                     mainAxisSpacing: 24.h,
                                     crossAxisSpacing: 24.w,
@@ -130,17 +107,16 @@ class _CoursesDashboardState extends State<CoursesDashboard> {
                                         : "";
                                     return InkWell(
                                       onTap: () {
-
                                         final relatedSections = sections
-                                            .where((s) =>
-                                        s.course.id == course.id)
+                                            .where((s) => s.course.id == course.id)
                                             .toList();
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (_) => SectionsScreen(
                                               course: course,
-                                              sections: relatedSections, idTrainer:idTrainer,
+                                              sections: relatedSections,
+                                              idTrainer: idTrainer,
                                             ),
                                           ),
                                         );
@@ -149,8 +125,7 @@ class _CoursesDashboardState extends State<CoursesDashboard> {
                                         padding: EdgeInsets.all(16.w),
                                         decoration: BoxDecoration(
                                           color: Theme.of(context).scaffoldBackgroundColor,
-                                          borderRadius:
-                                          BorderRadius.circular(12.r),
+                                          borderRadius: BorderRadius.circular(12.r),
                                           boxShadow: [
                                             BoxShadow(
                                               color: Colors.black12,
@@ -160,40 +135,22 @@ class _CoursesDashboardState extends State<CoursesDashboard> {
                                           ],
                                         ),
                                         child: Column(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             CircleAvatar(
                                               radius: 80,
                                               child: ClipOval(
-
                                                 child: course.photo != null
                                                     ? ImageNetwork(
                                                   image: photoUrl,
                                                   width: 190,
                                                   height: 190,
-                                                fitAndroidIos: BoxFit.cover,
+                                                  fitAndroidIos: BoxFit.cover,
                                                 )
                                                     : Icon(Icons.person, size: 50),
                                               ),
-                                            )
-
-
-                                            // ClipRRect(
-                                            //   borderRadius:
-                                            //   BorderRadius.circular(8.r),
-                                            //   child:
-                                            //
-                                            //   ImageNetwork(
-                                            //     image:       course.photo != null
-                                            //         ? "$BASE_URL${course.photo}"
-                                            //         : "" ,
-                                            //     width: 300.w,
-                                            //     height: 250.h,
-                                            //
-                                            //   )
-                                            // ),
-                                            ,SizedBox(height: 12.h),
+                                            ),
+                                            SizedBox(height: 12.h),
                                             Text(
                                               course.name,
                                               style: TextStyle(
@@ -235,17 +192,3 @@ class _CoursesDashboardState extends State<CoursesDashboard> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -53,3 +53,7 @@ final MARKATTENDANCE = '$BASE_URL_API/session-attendance/sessions/{session_id}/a
 final FETCHATTENDANCE = '$BASE_URL_API/session-attendance/sessions/{session_id}/attendance';
 final UPDATEATTENDANCE ='$BASE_URL_API/session-attendance/attendance/{attendanceId}';
 final DELETEATTENDANCE ='$BASE_URL_API/session-attendance/attendance/{attendanceId}';
+const GET_NOTIFICATIONS = '/notifications/indexNotificationsTrainer';
+const FORGOT_PASSWORD = '/auth/trainer/forgotPassword';
+const RESET_PASSWORD  = '/auth/trainer/passwordReset';
+

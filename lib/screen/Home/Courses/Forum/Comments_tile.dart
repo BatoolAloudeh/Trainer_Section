@@ -1,11 +1,11 @@
 
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_network/image_network.dart';
 
 import '../../../../constant/ui/Colors/colors.dart';
 import '../../../../constant/ui/General constant/ConstantUi.dart';
-
 
 class CommentTile extends StatelessWidget {
   final Comment comment;
@@ -70,7 +70,6 @@ class CommentTile extends StatelessWidget {
 
           SizedBox(height: 8.h),
 
-
           Padding(
             padding: EdgeInsets.only(left: 60.w),
             child: Text(
@@ -81,7 +80,6 @@ class CommentTile extends StatelessWidget {
 
           SizedBox(height: 8.h),
 
-
           Padding(
             padding: EdgeInsets.only(left: 60.w),
             child: Row(
@@ -91,7 +89,6 @@ class CommentTile extends StatelessWidget {
                   child: Icon(
                     Icons.favorite,
                     size: 20.sp,
-
                     color: comment.isLiked
                         ? AppColors.orange
                         : AppColors.t2,

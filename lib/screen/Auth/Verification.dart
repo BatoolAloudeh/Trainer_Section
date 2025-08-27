@@ -1,8 +1,4 @@
 
-
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pinput/pinput.dart';
@@ -13,6 +9,7 @@ import 'package:trainer_section/screen/Auth/Login.dart';
 import '../../Bloc/cubit/Auth/checkCode.dart';
 import '../../Bloc/states/Auth/checkCode.dart';
 import '../../constant/ui/General constant/ConstantUi.dart';
+import '../../localization/app_localizations.dart';
 
 class CheckCodeScreen extends StatefulWidget {
   const CheckCodeScreen({super.key});
@@ -95,7 +92,8 @@ class _CheckCodeScreenState extends State<CheckCodeScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Verification System',
+              AppLocalizations.of(context)?.translate("verification_system") ?? "Verification System",
+
               style: TextStyle(
                 color: AppColors.darkBlue,
                 fontSize: 25,
@@ -104,7 +102,8 @@ class _CheckCodeScreenState extends State<CheckCodeScreen> {
             ),
             SizedBox(height: 10),
             Text(
-              "Enter the verification code sent to your email.",
+              AppLocalizations.of(context)?.translate("verification_instruction") ?? "Enter the verification code sent to your email.",
+
               style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
               textAlign: TextAlign.start,
             ),
@@ -140,7 +139,8 @@ class _CheckCodeScreenState extends State<CheckCodeScreen> {
               : Center(
             child: ElevatedButton.icon(
               label: Text(
-                "Next",
+                AppLocalizations.of(context)?.translate("next") ?? "Next",
+
                 style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(

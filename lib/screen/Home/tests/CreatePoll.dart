@@ -8,10 +8,10 @@ import 'package:trainer_section/screen/Home/tests/TestsPage.dart';
 
 import '../../../Bloc/cubit/tests/create test.dart';
 import '../../../Bloc/states/tests/create test.dart';
+import '../../../localization/app_localizations.dart';
 import '../../../models/tests/create test.dart';
 import '../../../constant/ui/Colors/colors.dart';
 import '../../../constant/ui/General constant/ConstantUi.dart';
-
 
 class CreateQuizPage extends StatefulWidget {
   final int    sectionId;
@@ -22,8 +22,7 @@ class CreateQuizPage extends StatefulWidget {
     Key? key,
     required this.sectionId,
     required this.token,
-    required this.CourseName
-
+    required this.CourseName,
   }) : super(key: key);
 
   @override
@@ -40,8 +39,8 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
     _addQuestion();
   }
 
-  void _addQuestion()   => setState(() => _forms.add(_QuestionForm()));
-  void _removeQuestion(int i) => setState(() => _forms.removeAt(i));
+  void _addQuestion()        => setState(() => _forms.add(_QuestionForm()));
+  void _removeQuestion(int i)=> setState(() => _forms.removeAt(i));
 
   bool get _canSubmit {
     if (_titleCtrl.text.trim().isEmpty) return false;
@@ -53,7 +52,7 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
     final questions = _forms.map((f) {
       final opts = f.optionCtrls.asMap().entries.map((e) {
         return QuizOption(
-          option:   e.value.text.trim(),
+          option:    e.value.text.trim(),
           isCorrect: e.key == f.correctIndex,
         );
       }).toList();
@@ -64,9 +63,9 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
     }).toList();
 
     final quiz = Quiz(
-      title:           _titleCtrl.text.trim(),
-      courseSectionId: widget.sectionId,
-      questions:       questions,
+      title:            _titleCtrl.text.trim(),
+      courseSectionId:  widget.sectionId,
+      questions:        questions,
     );
 
     await context.read<QuizCubit>().createQuiz(
@@ -77,10 +76,13 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context,
+    ScreenUtil.init(
+      context,
       designSize: const Size(1440, 1024),
       minTextAdapt: true,
     );
+
+    final tr = AppLocalizations.of(context)?.translate;
 
     return BlocProvider(
       create: (_) => QuizCubit(),
@@ -92,133 +94,187 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
 
             Expanded(
               child: Padding(
-                padding: EdgeInsets.all(35.w),
+                padding: EdgeInsets.all(24.w),
                 child: Column(
                   children: [
-                    // العنوان
-                  Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Quizzes',
-                      style: TextStyle(
-                        fontSize: 28.sp,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.darkBlue,
+                    // ===== شريط علوي داخل المحتوى =====
+                    Container(
+                      height: 56.h,
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: Colors.black12.withOpacity(.06)),
+                        ),
                       ),
-                    ),],),
-                    SizedBox(height: 40.h),
-
-
-
-
-                    TextField(
-                      controller: _titleCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Quiz Title',
-
+                      child: Row(
+                        children: [
+                          Text(
+                            tr?.call("quizzes") ?? "Quizzes",
+                            style: TextStyle(
+                              fontSize: 24.sp,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.darkBlue,
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                            decoration: BoxDecoration(
+                              color: AppColors.purple.withOpacity(.10),
+                              borderRadius: BorderRadius.circular(20.r),
+                              border: Border.all(color: AppColors.purple.withOpacity(.25)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.menu_book, size: 14, color: Colors.deepPurple),
+                                SizedBox(width: 6.w),
+                                Text(
+                                  widget.CourseName,
+                                  style: TextStyle(fontSize: 12.sp, color: AppColors.t3),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      onChanged: (_) => setState(() {}),
                     ),
-                    SizedBox(height: 12.h),
 
+                    SizedBox(height: 20.h),
 
+                    // ===== حاوية المحتوى =====
                     Expanded(
-                      child: ListView.builder(
-                        itemCount: _forms.length,
-                        itemBuilder: (_, i) => _QuestionCard(
-                          form:      _forms[i],
-                          index:     i+1,
-                          onRemove:  _forms.length>1 ? ()=>_removeQuestion(i) : null,
-                          onChanged: ()=>setState((){}),
+                      child: Container(
+                        constraints: BoxConstraints(maxWidth: 1100.w),
+                        padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 16.h),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          borderRadius: BorderRadius.circular(18.r),
+                          border: Border.all(color: Colors.black12.withOpacity(.08)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 12.r,
+                              offset: Offset(0, 6.h),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              tr?.call("quiz_title") ?? "Quiz Title",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.darkBlue,
+                                fontSize: 13.sp,
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+
+                            // ===== حقل العنوان =====
+                            TextField(
+                              controller: _titleCtrl,
+                              decoration: InputDecoration(
+                                hintText: tr?.call("quiz_title") ?? "Quiz Title",
+                                isDense: true,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.r),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.r),
+                                  borderSide: BorderSide(color: Colors.black12.withOpacity(.25)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.r),
+                                  borderSide: BorderSide(color: AppColors.orange),
+                                ),
+                                fillColor: AppColors.w1,
+                                filled: true,
+                              ),
+                              onChanged: (_) => setState(() {}),
+                            ),
+
+                            SizedBox(height: 16.h),
+
+                            // ===== قائمة الأسئلة =====
+                            Expanded(
+                              child: ListView.builder(
+                                padding: EdgeInsets.only(bottom: 12.h),
+                                itemCount: _forms.length,
+                                itemBuilder: (_, i) => _QuestionCard(
+                                  form:      _forms[i],
+                                  index:     i + 1,
+                                  onRemove:  _forms.length > 1 ? () => _removeQuestion(i) : null,
+                                  onChanged: () => setState(() {}),
+                                ),
+                              ),
+                            ),
+
+                            // ===== أزرار أسفل =====
+                            Row(
+                              children: [
+                                // إضافة سؤال
+                                FilledButton.icon(
+                                  onPressed: _addQuestion,
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: AppColors.purple,
+                                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                                  ),
+                                  icon: const Icon(Icons.add, color: Colors.white, size: 18),
+                                  label: Text(
+                                    tr?.call("add_question") ?? "Add Question",
+                                    style: TextStyle(color: Colors.white, fontSize: 13.5.sp),
+                                  ),
+                                ),
+                                const Spacer(),
+
+                                // إنشاء الاختبار
+                                BlocConsumer<QuizCubit, QuizState>(
+                                  listener: (ctx, state) {
+                                    if (state is QuizSuccess) {
+                                      debugPrint('✅ QuizSuccess – Pop true');
+                                      if (mounted) {
+                                        Future.microtask(() {
+                                          Navigator.of(context, rootNavigator: true).pop(true);
+                                        });
+                                      }
+                                    }
+                                    if (state is QuizFailure) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(state.error)),
+                                      );
+                                    }
+                                  },
+                                  builder: (ctx, state) {
+                                    final isLoading = state is QuizLoading;
+                                    return FilledButton(
+                                      onPressed: (_canSubmit && !isLoading) ? _submit : null,
+                                      style: FilledButton.styleFrom(
+                                        backgroundColor: AppColors.orange,
+                                        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 14.h),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                                      ),
+                                      child: isLoading
+                                          ? SizedBox(
+                                        height: 20.r,
+                                        width: 20.r,
+                                        child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                      )
+                                          : Text(
+                                        tr?.call("create_quiz") ?? "Create Quiz",
+                                        style: TextStyle(color: Colors.white, fontSize: 13.5.sp),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    SizedBox(height: 12.h),
-
-
-                    ElevatedButton.icon(
-                      icon:  const Icon(Icons.add, size: 18),
-                      label: const Text('Add Question'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.purple,
-                        minimumSize: Size(400, 55.h),
-                      ),
-                      onPressed: _addQuestion,
-                    ),
-                    SizedBox(height: 30.h),
-
-
-                    // BlocConsumer<QuizCubit, QuizState>(
-                    //   listener: (ctx, state) {
-                    //     if (state is QuizSuccess) {
-                    //
-                    //       ScaffoldMessenger.of(context).showSnackBar(
-                    //           const SnackBar(content: Text('Quiz created successfully!'))
-                    //       );
-                    //
-                    //
-                    //     }
-                    //     if (state is QuizFailure) {
-                    //       ScaffoldMessenger.of(context).showSnackBar(
-                    //           SnackBar(content: Text(state.error))
-                    //       );
-                    //     }
-                    //   },
-                    //   builder: (ctx, state) {
-                    //     if (state is QuizLoading) {
-                    //       return const Center(child: CircularProgressIndicator());
-                    //     }
-                    //     return ElevatedButton(
-                    //       onPressed: _canSubmit ? _submit : null,
-                    //       style: ElevatedButton.styleFrom(
-                    //         backgroundColor: AppColors.orange,
-                    //         minimumSize: Size(400, 48.h),
-                    //       ),
-                    //       child: const Text('Create Quiz'),
-                    //     );
-                    //   },
-                    // ),
-
-
-
-
-
-                    BlocConsumer<QuizCubit, QuizState>(
-                      listener: (ctx, state) {
-                        if (state is QuizSuccess) {
-                          debugPrint('✅ QuizSuccess – Pop true');
-
-                          if (mounted) Navigator.of(ctx).pop(true);
-                        }
-                        if (state is QuizFailure) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(state.error))
-                          );
-                        }
-                      },
-                      builder: (ctx, state) {
-                        if (state is QuizLoading) {
-                          return const Center(child: CircularProgressIndicator());
-                        }
-                        return ElevatedButton(
-                          onPressed: _canSubmit ? _submit : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.orange,
-                            minimumSize: Size(400, 48.h),
-                          ),
-                          child: const Text('Create Quiz'),
-                        );
-                      },
-                    ),
-
-
-
-
-
-
-
-                    SizedBox(height: 16.h),
                   ],
                 ),
               ),
@@ -229,6 +285,8 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
     );
   }
 }
+
+/* ===================== Models for the form (unchanged logic) ===================== */
 
 class _QuestionForm {
   final questionCtrl = TextEditingController();
@@ -244,7 +302,9 @@ class _QuestionForm {
     if (questionCtrl.text.trim().isEmpty) return false;
     if (optionCtrls.length < 2) return false;
     if (correctIndex == null) return false;
-    for (var c in optionCtrls) if (c.text.trim().isEmpty) return false;
+    for (var c in optionCtrls) {
+      if (c.text.trim().isEmpty) return false;
+    }
     return true;
   }
 
@@ -259,6 +319,8 @@ class _QuestionForm {
     }
   }
 }
+
+/* ===================== UI: Question Card ===================== */
 
 class _QuestionCard extends StatefulWidget {
   final _QuestionForm form;
@@ -281,47 +343,112 @@ class _QuestionCard extends StatefulWidget {
 class _QuestionCardState extends State<_QuestionCard> {
   @override
   Widget build(BuildContext context) {
-    final f = widget.form;
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 12.h),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.r)),
-      elevation: 2,
-      child: Padding(
-        padding: EdgeInsets.all(30.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    final f  = widget.form;
+    final tr = AppLocalizations.of(context)?.translate;
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Question ${widget.index}',
-                    style: TextStyle(fontWeight: FontWeight.bold)
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10.h),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: Colors.black12.withOpacity(.08)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10.r,
+            offset: Offset(0, 6.h),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          // رأس البطاقة: شارة رقم السؤال + حذف
+          Row(
+            children: [
+              Container(
+                width: 34.r,
+                height: 34.r,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.orange.withOpacity(.12),
+                  borderRadius: BorderRadius.circular(10.r),
+                  border: Border.all(color: AppColors.orange.withOpacity(.35)),
                 ),
-                if (widget.onRemove != null)
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: widget.onRemove,
+                child: Text(
+                  '${widget.index}',
+                  style: TextStyle(
+                    color: AppColors.orange,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12.sp,
                   ),
-              ],
-            ),
-
-            SizedBox(height: 8.h),
-
-
-            TextField(
-              controller: f.questionCtrl,
-              decoration: const InputDecoration(
-                hintText: 'Enter question',
-                border: OutlineInputBorder(),
+                ),
               ),
-              onChanged: (_) => widget.onChanged?.call(),
+              const Spacer(),
+              if (widget.onRemove != null)
+                IconButton(
+                  tooltip: tr?.call("delete") ?? 'Delete',
+                  icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
+                  onPressed: widget.onRemove,
+                ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+
+          // حقل السؤال
+          Text(
+            tr?.call("question") ?? "Question",
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w700,
+              color: AppColors.t3,
             ),
-            SizedBox(height: 12.h),
+          ),
+          SizedBox(height: 6.h),
+          TextField(
+            controller: f.questionCtrl,
+            decoration: InputDecoration(
+              hintText: tr?.call("enter_question") ?? "Enter question",
+              isDense: true,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: BorderSide(color: Colors.black12.withOpacity(.25)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: BorderSide(color: AppColors.orange),
+              ),
+              fillColor: AppColors.w1,
+              filled: true,
+            ),
+            onChanged: (_) => widget.onChanged?.call(),
+          ),
+          SizedBox(height: 14.h),
 
+          // الخيارات
+          Text(
+            tr?.call("option") ?? "Option",
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w700,
+              color: AppColors.t3,
+            ),
+          ),
+          SizedBox(height: 8.h),
 
-            for (var i = 0; i < f.optionCtrls.length; i++) ...[
-              Row(
+          for (var i = 0; i < f.optionCtrls.length; i++) ...[
+            Container(
+              margin: EdgeInsets.only(bottom: 8.h),
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                color: AppColors.w1,
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(color: Colors.black12.withOpacity(.15)),
+              ),
+              child: Row(
                 children: [
                   Radio<int>(
                     value: i,
@@ -336,14 +463,16 @@ class _QuestionCardState extends State<_QuestionCard> {
                     child: TextField(
                       controller: f.optionCtrls[i],
                       decoration: InputDecoration(
-                        hintText: 'Option ${i+1}',
-                        border: const OutlineInputBorder(),
+                        hintText: '${tr?.call("option") ?? "Option"} ${i + 1}',
+                        isDense: true,
+                        border: InputBorder.none,
                       ),
                       onChanged: (_) => widget.onChanged?.call(),
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.close, color: AppColors.orange),
+                    tooltip: tr?.call("delete") ?? 'Delete',
+                    icon: Icon(Icons.close_rounded, color: AppColors.orange),
                     onPressed: () {
                       setState(() => f.removeOption(i));
                       widget.onChanged?.call();
@@ -351,23 +480,24 @@ class _QuestionCardState extends State<_QuestionCard> {
                   ),
                 ],
               ),
-              SizedBox(height: 8.h),
-            ],
-
-            // زر إضافة خيار
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                icon: Icon(Icons.add, color: AppColors.purple),
-                label: Text('Add Option', style: TextStyle(color: AppColors.purple)),
-                onPressed: () {
-                  setState(() => f.addOption());
-                  widget.onChanged?.call();
-                },
-              ),
             ),
           ],
-        ),
+
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () {
+                setState(() => f.addOption());
+                widget.onChanged?.call();
+              },
+              icon: Icon(Icons.add_rounded, color: AppColors.purple),
+              label: Text(
+                tr?.call("add_option") ?? "Add Option",
+                style: TextStyle(color: AppColors.purple),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

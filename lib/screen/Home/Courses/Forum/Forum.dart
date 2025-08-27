@@ -10,6 +10,7 @@ import '../../../../Bloc/states/Forum/general state.dart';
 import '../../../../constant/constantKey/key.dart';
 import '../../../../constant/ui/Colors/colors.dart';
 import '../../../../constant/ui/General constant/ConstantUi.dart';
+import '../../../../localization/app_localizations.dart';
 import 'Comments_page.dart';
 import 'likes.dart';
 
@@ -60,7 +61,7 @@ class _ForumPageState extends State<ForumPage> {
                 controller: _controller,
                 maxLines: 6,
                 decoration: InputDecoration(
-                  hintText: 'Write something...',
+                  hintText: AppLocalizations.of(context)?.translate("write_something") ?? 'Write something...',
                   filled: true,
                   fillColor: AppColors.highlightPurple,
                   border: OutlineInputBorder(
@@ -89,7 +90,10 @@ class _ForumPageState extends State<ForumPage> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.r)),
                   ),
-                  child: Text('Create', style: TextStyle(fontSize: 14.sp)),
+                  child: Text(
+                    AppLocalizations.of(context)?.translate("create") ?? 'Create',
+                    style: TextStyle(fontSize: 14.sp),
+                  ),
                 ),
               ),
             ],
@@ -127,19 +131,56 @@ class _ForumPageState extends State<ForumPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Forum',
-                        style: TextStyle(
-                            fontSize: 28.sp,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.darkBlue)),
-                    SizedBox(height: 20.h),
-                    Text(widget.courseName,
-                        style: TextStyle(
-                            fontSize: 16.sp,
-                            fontStyle: FontStyle.italic,
-                            color: AppColors.t2)),
-                    SizedBox(height: 50.h),
 
+                    Container(
+                      height: 56.h,
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                      decoration: BoxDecoration(
+                        border: Border(bottom: BorderSide(color: Colors.black12.withOpacity(.06))),
+                      ),
+                      child: Row(
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)?.translate("forum") ?? 'Forum',
+                            style: TextStyle(
+                              fontSize: 24.sp,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.darkBlue,
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                            decoration: BoxDecoration(
+                              color: AppColors.purple.withOpacity(.10),
+                              borderRadius: BorderRadius.circular(20.r),
+                              border: Border.all(color: AppColors.purple.withOpacity(.25)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.menu_book, size: 14, color: Colors.deepPurple),
+                                SizedBox(width: 6.w),
+                                Text(
+                                  widget.courseName,
+                                  style: TextStyle(fontSize: 12.sp, color: AppColors.t3),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Text(
+                    //   AppLocalizations.of(context)?.translate("forum") ?? 'Forum',
+                    //   style: TextStyle(
+                    //       fontSize: 28.sp,
+                    //       fontWeight: FontWeight.bold,
+                    //       color: AppColors.darkBlue),
+                    // ),
+
+                    SizedBox(height: 50.h),
 
                     GestureDetector(
                       onTap: _showCreateDialog,
@@ -152,14 +193,13 @@ class _ForumPageState extends State<ForumPage> {
                         ),
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'Write something...',
+                          AppLocalizations.of(context)?.translate("write_something") ?? 'Write something...',
                           style:
                           TextStyle(fontSize: 14.sp, color: AppColors.t3),
                         ),
                       ),
                     ),
                     SizedBox(height: 20.h),
-
 
                     Expanded(
                       child: BlocBuilder<ForumCubit, ForumState>(
@@ -185,7 +225,7 @@ class _ForumPageState extends State<ForumPage> {
                                     ),
                                     SizedBox(height: 20.h),
                                     Text(
-                                      'Nothing to display at this time',
+                                      AppLocalizations.of(context)?.translate("nothing_to_display") ?? 'Nothing to display at this time',
                                       style: TextStyle(
                                         fontSize: 18.sp,
                                         fontWeight: FontWeight.bold,
@@ -201,7 +241,7 @@ class _ForumPageState extends State<ForumPage> {
                               itemCount: questions.length,
                               itemBuilder: (_, i) {
                                 final q = questions[i];
-                                // نبني بطاقة للسؤال
+
                                 final postAvatar =
                                 '$BASE_URL${q.user.photo}'.trim();
                                 return Card(
@@ -300,7 +340,7 @@ class _ForumPageState extends State<ForumPage> {
                                             ),
 
                                             SizedBox(width: 24.w),
-                                            // إعجاب/إلغاء إعجاب
+
                                             GestureDetector(
                                               onTap: () {
                                                 final meId = widget.idTrainer;
@@ -370,7 +410,7 @@ class _ForumPageState extends State<ForumPage> {
                                                     builder: (_) =>
                                                         AlertDialog(
                                                           title:
-                                                          Text('Edit Question'),
+                                                          Text(AppLocalizations.of(context)?.translate("edit_question") ?? 'Edit Question'),
                                                           content: TextField(
                                                             controller: ctrl,
                                                             maxLines: 3,
@@ -386,7 +426,7 @@ class _ForumPageState extends State<ForumPage> {
                                                                   Navigator.pop(
                                                                       context),
                                                               child:
-                                                              Text('Cancel'),
+                                                              Text(AppLocalizations.of(context)?.translate("cancel") ?? 'Cancel'),
                                                             ),
                                                             ElevatedButton(
                                                               onPressed: () {
@@ -410,7 +450,7 @@ class _ForumPageState extends State<ForumPage> {
                                                                       context);
                                                                 }
                                                               },
-                                                              child: Text('Save'),
+                                                              child: Text(AppLocalizations.of(context)?.translate("save") ?? 'Save'),
                                                             ),
                                                           ],
                                                         ),
@@ -427,15 +467,15 @@ class _ForumPageState extends State<ForumPage> {
                                                     builder: (_) =>
                                                         AlertDialog(
                                                           title: Text(
-                                                              'Delete Question'),
+                                                              AppLocalizations.of(context)?.translate("delete_question") ?? 'Delete Question'),
                                                           content: Text(
-                                                              'Are you sure you want to delete this question?'),
+                                                              AppLocalizations.of(context)?.translate("delete_question_confirm") ?? 'Are you sure you want to delete this question?'),
                                                           actions: [
                                                             TextButton(
                                                               onPressed: () =>
                                                                   Navigator.pop(
                                                                       context),
-                                                              child: Text('No'),
+                                                              child: Text(AppLocalizations.of(context)?.translate("no") ?? 'No'),
                                                             ),
                                                             ElevatedButton(
                                                               style: ElevatedButton
@@ -455,7 +495,7 @@ class _ForumPageState extends State<ForumPage> {
                                                                 Navigator.pop(
                                                                     context);
                                                               },
-                                                              child: Text('Yes'),
+                                                              child: Text(AppLocalizations.of(context)?.translate("yes") ?? 'Yes'),
                                                             ),
                                                           ],
                                                         ),
@@ -485,3 +525,9 @@ class _ForumPageState extends State<ForumPage> {
     );
   }
 }
+
+
+
+
+
+
