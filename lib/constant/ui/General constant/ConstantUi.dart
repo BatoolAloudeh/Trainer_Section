@@ -1,9 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_network/image_network.dart';
 import 'package:trainer_section/constant/constantKey/key.dart';
 import 'package:trainer_section/constant/ui/Colors/colors.dart';
+import 'package:trainer_section/router/route-paths.dart';
 import 'package:trainer_section/screen/Settings/DarkMode/SettingPage.dart';
 import '../../../localization/app_localizations.dart';
 import '../../../models/tests/create test.dart';
@@ -13,7 +14,6 @@ import '../../../screen/Calendar/calendar.dart';
 import '../../../screen/Home/Courses/MainPage/ShowCourses.dart';
 import '../../../screen/Home/Profiles/Trainer.dart';
 import '../../../screen/notification/notification.dart';
-
 
 Widget defaultFormField({
   required String text,
@@ -32,66 +32,57 @@ Widget defaultFormField({
   void Function(String?)? onSaved,
   double width = double.infinity,
   double height = 65,
-}) =>
-
-    Container(
-      height: height,
-      width: width,
-      child: Column(
-        children: [
-          Expanded(
-            child: TextFormField(
-              onSaved: onSaved,
-              initialValue: initialValue,
-              cursorColor: AppColors.darkBlue,
-              keyboardType: keyboardtype,
-              onChanged: onChanged,
-              onTap: onTap,
-              onFieldSubmitted: onsubmitted,
-              decoration: InputDecoration(
-                labelText: text,
-                labelStyle: TextStyle(color: AppColors.darkBlue),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(100.0),
-                    borderSide: BorderSide(color: AppColors.darkBlue)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(100.0),
-                    borderSide: BorderSide(color: AppColors.darkBlue)),
-                errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(100.0),
-                    borderSide: BorderSide(color: AppColors.darkBlue)),
-                border: const OutlineInputBorder(),
-                prefixIcon: Icon(
-                  prefix,
-                  color: AppColors.darkBlue,
-                ),
-                suffixIcon: suffix != null
-                    ? IconButton(
-                  onPressed: () {
-                    suffixButton!();
-                  },
-                  icon: Icon(
-                    suffix,
-                    color: AppColors.darkBlue,
-                  ),
-                  highlightColor: AppColors.lightPurple,
-                  hoverColor: AppColors.lightPurple,
-                )
-                    : null,
-              ),
-              controller: controller,
-              validator: validate,
-              obscureText: isPassword,
+}) => Container(
+  height: height,
+  width: width,
+  child: Column(
+    children: [
+      Expanded(
+        child: TextFormField(
+          onSaved: onSaved,
+          initialValue: initialValue,
+          cursorColor: AppColors.darkBlue,
+          keyboardType: keyboardtype,
+          onChanged: onChanged,
+          onTap: onTap,
+          onFieldSubmitted: onsubmitted,
+          decoration: InputDecoration(
+            labelText: text,
+            labelStyle: TextStyle(color: AppColors.darkBlue),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(100.0),
+              borderSide: BorderSide(color: AppColors.darkBlue),
             ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(100.0),
+              borderSide: BorderSide(color: AppColors.darkBlue),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(100.0),
+              borderSide: BorderSide(color: AppColors.darkBlue),
+            ),
+            border: const OutlineInputBorder(),
+            prefixIcon: Icon(prefix, color: AppColors.darkBlue),
+            suffixIcon:
+                suffix != null
+                    ? IconButton(
+                      onPressed: () {
+                        suffixButton!();
+                      },
+                      icon: Icon(suffix, color: AppColors.darkBlue),
+                      highlightColor: AppColors.lightPurple,
+                      hoverColor: AppColors.lightPurple,
+                    )
+                    : null,
           ),
-
-        ],
+          controller: controller,
+          validator: validate,
+          obscureText: isPassword,
+        ),
       ),
-    );
-
-
-
-
+    ],
+  ),
+);
 
 Widget defaultButton({
   required String text,
@@ -104,87 +95,81 @@ Widget defaultButton({
   double radius = 100.0,
   double height = 50,
   IconData? suffix,
-}) =>
-    Container(
-      width: width,
-      height: height,
-      child: Container(
-        width: 300,
-        height: 100,
-        decoration: ShapeDecoration(
-          shape: StadiumBorder(),
-
-        ),
-        child: MaterialButton(
-
-          padding: EdgeInsetsDirectional.all(0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radius),
-            side: BorderSide(color: AppColors.darkBlue),
-
-          ),
-          // color: Colors.blueGrey[500],
-          onPressed: () {
-            onPressed();
-          },
-          child: Center(
-            child: Text(
-              text,
-              style: const TextStyle(
-                fontSize: 18,
-                // fontWeight: FontWeight.bold,
-                color:    AppColors.darkBlue,
-              ),
-            ),
+}) => Container(
+  width: width,
+  height: height,
+  child: Container(
+    width: 300,
+    height: 100,
+    decoration: ShapeDecoration(shape: StadiumBorder()),
+    child: MaterialButton(
+      padding: EdgeInsetsDirectional.all(0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(radius),
+        side: BorderSide(color: AppColors.darkBlue),
+      ),
+      // color: Colors.blueGrey[500],
+      onPressed: () {
+        onPressed();
+      },
+      child: Center(
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 18,
+            // fontWeight: FontWeight.bold,
+            color: AppColors.darkBlue,
           ),
         ),
       ),
-    );
-
-
-
-
-
+    ),
+  ),
+);
 
 Widget _sidebarItem(
-      BuildContext context, {
-        required IconData icon,
-        required String title,
-        required Widget page,
-      }) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => page),
-        );
-      },
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.h),
-        child: Row(
-          children: [
-            SizedBox(width: 16.w),
-            Icon(icon, color: AppColors.white, size: 20.sp),
-            SizedBox(width: 12.w),
-            Text(
-              title,
-              style: TextStyle(color: AppColors.white, fontSize: 14.sp),
-            ),
-
-          ],
-        ),
+  BuildContext context, {
+  required IconData icon,
+  required String title,
+  required Widget page,
+}) {
+  return InkWell(
+    onTap: () {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+    },
+    child: Padding(
+      padding: EdgeInsets.symmetric(vertical: 12.h),
+      child: Row(
+        children: [
+          SizedBox(width: 16.w),
+          Icon(icon, color: AppColors.white, size: 20.sp),
+          SizedBox(width: 12.w),
+          Text(
+            title,
+            style: TextStyle(color: AppColors.white, fontSize: 14.sp),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
+enum SidebarItem {
+  courses(RoutePaths.courses),
+  profile(RoutePaths.profile),
+  search('/search'),
+  calendar(RoutePaths.calendar),
+  settings(RoutePaths.settings),
+  logout('/logout'),
+  notifications(RoutePaths.notifications);
 
+  final String path;
 
-
-
-enum SidebarItem { courses, Profile, search, calendar, settings, logout, notifications }
+  const SidebarItem(this.path);
+}
 
 class AppSidebar extends StatelessWidget {
   final SidebarItem selectedItem;
+
   const AppSidebar({Key? key, required this.selectedItem}) : super(key: key);
 
   @override
@@ -192,7 +177,8 @@ class AppSidebar extends StatelessWidget {
     final token = CacheHelper.getData(key: TOKENKEY) as String?;
     final trainerId = CacheHelper.getData(key: 'trainer_id') as int?;
     final userName = CacheHelper.getData(key: 'user_name') as String? ?? '';
-    final userPhoto = CacheHelper.getData(key: 'user_photo') as String?; // may be null
+    final userPhoto =
+        CacheHelper.getData(key: 'user_photo') as String?; // may be null
     String photoUrl = userPhoto != null ? "$BASE_URL$userPhoto" : "";
 
     final double itemHeight = 100.h;
@@ -211,35 +197,27 @@ class AppSidebar extends StatelessWidget {
             borderRadius: BorderRadius.circular(0),
             onDoubleTap: () {
               if (token != null && trainerId != null) {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => TrainerProfilePage(
-                      token: token,
-                      idTrainer: trainerId,
-                    ),
-                  ),
-                );
+                context.go(RoutePaths.profile);
               }
             },
             child: CircleAvatar(
               radius: 25,
               child: ClipOval(
-                child: userPhoto != null
-                    ? ImageNetwork(
-                  image: photoUrl,
-                  width: 50,
-                  height: 50,
-                  fitAndroidIos: BoxFit.cover,
-                )
-                    : Icon(Icons.person, size: 20),
+                child:
+                    userPhoto != null
+                        ? ImageNetwork(
+                          image: photoUrl,
+                          width: 50,
+                          height: 50,
+                          fitAndroidIos: BoxFit.cover,
+                        )
+                        : Icon(Icons.person, size: 20),
               ),
             ),
           ),
           SizedBox(height: 12.h),
           Text(
-            userName.isNotEmpty
-                ? userName
-                : tr?.call("Trainer") ?? "Trainer",
+            userName.isNotEmpty ? userName : tr?.call("Trainer") ?? "Trainer",
             style: TextStyle(
               color: AppColors.white,
               fontSize: 18.sp,
@@ -253,9 +231,12 @@ class AppSidebar extends StatelessWidget {
             icon: Icons.menu_book,
             label: tr?.call('Courses') ?? 'Courses',
             item: SidebarItem.courses,
-            page: (token != null && trainerId != null)
-                ? CoursesDashboard(token: token, idTrainer: trainerId)
-                : Center(child: Text(tr?.call('Please login') ?? 'Please login')),
+            page:
+                (token != null && trainerId != null)
+                    ? CoursesDashboard()
+                    : Center(
+                      child: Text(tr?.call('Please login') ?? 'Please login'),
+                    ),
             itemHeight: itemHeight,
             radius: radius,
           ),
@@ -263,10 +244,13 @@ class AppSidebar extends StatelessWidget {
             context,
             icon: Icons.person_pin_outlined,
             label: tr?.call('Profile') ?? 'Profile',
-            item: SidebarItem.Profile,
-            page: (token != null)
-                ? TrainerProfilePage(token: token, idTrainer: trainerId!)
-                : Center(child: Text(tr?.call('Please login') ?? 'Please login')),
+            item: SidebarItem.profile,
+            page:
+                (token != null)
+                    ? TrainerProfilePage()
+                    : Center(
+                      child: Text(tr?.call('Please login') ?? 'Please login'),
+                    ),
             itemHeight: itemHeight,
             radius: radius,
           ),
@@ -275,9 +259,12 @@ class AppSidebar extends StatelessWidget {
             icon: Icons.calendar_today,
             label: tr?.call('Calendar') ?? 'Calendar',
             item: SidebarItem.calendar,
-            page: (token != null && trainerId != null)
-                ? CalendarPage(token: token)
-                : Center(child: Text(tr?.call('Please login') ?? 'Please login')),
+            page:
+                (token != null && trainerId != null)
+                    ? CalendarPage()
+                    : Center(
+                      child: Text(tr?.call('Please login') ?? 'Please login'),
+                    ),
             itemHeight: itemHeight,
             radius: radius,
           ),
@@ -314,46 +301,45 @@ class AppSidebar extends StatelessWidget {
   }
 
   Widget _sidebarItem(
-      BuildContext context, {
-        required IconData icon,
-        required String label,
-        required SidebarItem item,
-        required Widget page,
-        required double itemHeight,
-        required double radius,
-      }) {
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required SidebarItem item,
+    required Widget page,
+    required double itemHeight,
+    required double radius,
+  }) {
     final bool isSelected = item == selectedItem;
 
     return InkWell(
       onTap: () {
         if (!isSelected) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => page),
-          );
+          context.go(item.path);
         }
       },
       child: Container(
         height: itemHeight,
         width: double.infinity,
-        decoration: isSelected
-            ? BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(radius),
-            bottomLeft: Radius.circular(radius),
-          ),
-        )
-            : null,
+        decoration:
+            isSelected
+                ? BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(radius),
+                    bottomLeft: Radius.circular(radius),
+                  ),
+                )
+                : null,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Row(
           children: [
             Icon(
               icon,
               size: 20.sp,
-              color: isSelected
-                  ? AppColors.purple
-                  : AppColors.white.withOpacity(0.8),
+              color:
+                  isSelected
+                      ? AppColors.purple
+                      : AppColors.white.withOpacity(0.8),
             ),
             SizedBox(width: 12.w),
             Text(
@@ -361,9 +347,10 @@ class AppSidebar extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected
-                    ? AppColors.purple
-                    : AppColors.white.withOpacity(0.8),
+                color:
+                    isSelected
+                        ? AppColors.purple
+                        : AppColors.white.withOpacity(0.8),
               ),
             ),
           ],
@@ -372,11 +359,6 @@ class AppSidebar extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
 
 //
 // enum SidebarItem { courses, Profile, search, calendar, settings,logout ,notifications}
@@ -585,8 +567,6 @@ class AppSidebar extends StatelessWidget {
 //   }
 // }
 
-
-
 class StatItem extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -618,7 +598,14 @@ class StatItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label, style: TextStyle(fontSize: 17.sp, color: AppColors.t2)),
-            Text(value, style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: AppColors.t4)),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+                color: AppColors.t4,
+              ),
+            ),
           ],
         ),
       ],
@@ -630,14 +617,13 @@ class Poll {
   final String question;
   final List<String> options;
   final int correctIndex;
+
   Poll({
     required this.question,
     required this.options,
     required this.correctIndex,
   });
 }
-
-
 
 class CourseCard extends StatelessWidget {
   final String title;
@@ -666,7 +652,13 @@ class CourseCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(12.r),
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6.r, offset: Offset(0, 4.h))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6.r,
+              offset: Offset(0, 4.h),
+            ),
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -677,14 +669,31 @@ class CourseCard extends StatelessWidget {
               backgroundImage: AssetImage('assets/Images/stu.png'),
             ),
             SizedBox(height: 16.h),
-            Text(title, style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: AppColors.t4)),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+                color: AppColors.t4,
+              ),
+            ),
             SizedBox(height: 4.h),
-            Text('$students Students  $day', style: TextStyle(fontSize: 14.sp, color: AppColors.t2)),
+            Text(
+              '$students Students  $day',
+              style: TextStyle(fontSize: 14.sp, color: AppColors.t2),
+            ),
             SizedBox(height: 8.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(rating.toString(), style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.bold, color: AppColors.t4)),
+                Text(
+                  rating.toString(),
+                  style: TextStyle(
+                    fontSize: 17.sp,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.t4,
+                  ),
+                ),
                 SizedBox(width: 4.w),
                 Icon(Icons.star, size: 17.sp, color: AppColors.orange),
               ],
@@ -724,7 +733,6 @@ class PostCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           Row(
             children: [
               // CircleAvatar(
@@ -734,26 +742,29 @@ class PostCard extends StatelessWidget {
               CircleAvatar(
                 radius: 24.r,
                 child: ClipOval(
-
-                  child: post.author.avatar != null
-                      ? ImageNetwork(
-                    image: post.author.avatar,
-                    width: 30,
-                    height: 30,
-                    fitAndroidIos: BoxFit.cover,
-                  )
-                      : Icon(Icons.person, size: 50),
+                  child:
+                      post.author.avatar != null
+                          ? ImageNetwork(
+                            image: post.author.avatar,
+                            width: 30,
+                            height: 30,
+                            fitAndroidIos: BoxFit.cover,
+                          )
+                          : Icon(Icons.person, size: 50),
                 ),
               ),
               SizedBox(width: 12.w),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(post.author.name,
-                      style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.darkBlue)),
+                  Text(
+                    post.author.name,
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.darkBlue,
+                    ),
+                  ),
                   SizedBox(height: 4.h),
                   Text(
                     '${post.date.hour.toString().padLeft(2, '0')}:${post.date.minute.toString().padLeft(2, '0')}',
@@ -768,25 +779,29 @@ class PostCard extends StatelessWidget {
 
           SizedBox(height: 12.h),
 
-
-          Text(post.content,
-              style: TextStyle(fontSize: 16.sp, color: AppColors.t3)),
+          Text(
+            post.content,
+            style: TextStyle(fontSize: 16.sp, color: AppColors.t3),
+          ),
 
           SizedBox(height: 16.h),
 
-
           Row(
             children: [
-
               GestureDetector(
                 onTap: onComment,
                 child: Row(
                   children: [
-                    Icon(Icons.chat_bubble_outline,
-                        size: 20.sp, color: AppColors.t3),
+                    Icon(
+                      Icons.chat_bubble_outline,
+                      size: 20.sp,
+                      color: AppColors.t3,
+                    ),
                     SizedBox(width: 4.w),
-                    Text('${post.comments.length}',
-                        style: TextStyle(fontSize: 16.sp, color: AppColors.t3)),
+                    Text(
+                      '${post.comments.length}',
+                      style: TextStyle(fontSize: 16.sp, color: AppColors.t3),
+                    ),
                   ],
                 ),
               ),
@@ -805,11 +820,12 @@ class PostCard extends StatelessWidget {
 
               SizedBox(width: 4.w),
 
-
               GestureDetector(
                 onTap: onShowLikes,
-                child: Text('${post.likedBy.length}',
-                    style: TextStyle(fontSize: 16.sp, color: AppColors.orange)),
+                child: Text(
+                  '${post.likedBy.length}',
+                  style: TextStyle(fontSize: 16.sp, color: AppColors.orange),
+                ),
               ),
             ],
           ),
@@ -831,14 +847,16 @@ class Post {
     required this.date,
     required this.content,
     List<User>? likedBy,
-    List<Comment>? comments, required int id,
-  })  : likedBy = likedBy ?? [],
-        comments = comments ?? [];
+    List<Comment>? comments,
+    required int id,
+  }) : likedBy = likedBy ?? [],
+       comments = comments ?? [];
 }
 
 class User {
   final String name;
   final String avatar;
+
   User({required this.name, required this.avatar});
 }
 
@@ -850,6 +868,7 @@ class Comment {
   final int likesCount;
   final bool isLiked;
   int likes;
+
   Comment({
     required this.author,
     required this.date,
@@ -861,23 +880,8 @@ class Comment {
   });
 }
 
-
-void navigateTo(context, Widget) => Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => Widget,
-  ),
-);
-
-
-
-
-
-
-
-
-
-
+void navigateTo(context, Widget) =>
+    context.push(context, MaterialPageRoute(builder: (context) => Widget));
 
 class PollDialog extends StatefulWidget {
   const PollDialog({Key? key}) : super(key: key);
@@ -932,13 +936,15 @@ class _PollDialogState extends State<PollDialog> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('New Question',
-                  style: TextStyle(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkBlue)),
+              Text(
+                'New Question',
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.darkBlue,
+                ),
+              ),
               SizedBox(height: 16.h),
-
 
               TextField(
                 controller: _questionCtrl,
@@ -958,8 +964,10 @@ class _PollDialogState extends State<PollDialog> {
               SizedBox(height: 16.h),
 
               // الخيارات
-              Text('Options',
-                  style: TextStyle(fontSize: 16.sp, color: AppColors.t3)),
+              Text(
+                'Options',
+                style: TextStyle(fontSize: 16.sp, color: AppColors.t3),
+              ),
               SizedBox(height: 8.h),
               for (int i = 0; i < _optionCtrls.length; i++) ...[
                 Row(
@@ -993,15 +1001,15 @@ class _PollDialogState extends State<PollDialog> {
                 SizedBox(height: 12.h),
               ],
 
-
               Row(
                 children: [
                   ElevatedButton.icon(
                     onPressed: _optionCtrls.length < 10 ? _addOption : null,
                     icon: Icon(Icons.add),
                     label: Text('Add option'),
-                    style:
-                    ElevatedButton.styleFrom(backgroundColor: AppColors.purple),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.purple,
+                    ),
                   ),
                   SizedBox(width: 16.w),
                   Expanded(
@@ -1015,38 +1023,43 @@ class _PollDialogState extends State<PollDialog> {
 
               SizedBox(height: 24.h),
 
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child:
-                    Text('Cancel', style: TextStyle(color: AppColors.darkBlue)),
+                    onPressed: () => context.pop(),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: AppColors.darkBlue),
+                    ),
                   ),
                   SizedBox(width: 24.w),
                   ElevatedButton(
-                    onPressed: _canCreate
-                        ? () {
-
-                      final options = _optionCtrls
-                          .asMap()
-                          .entries
-                          .map((e) => QuizOption(
-                        option: e.value.text.trim(),
-                        isCorrect: e.key == _correctIdx,
-                      ))
-                          .toList();
-                      final question = QuizQuestion(
-                        question: _questionCtrl.text.trim(),
-                        options: options,
-                      );
-                      Navigator.pop(context, question);
-                    }
-                        : null,
+                    onPressed:
+                        _canCreate
+                            ? () {
+                              final options =
+                                  _optionCtrls
+                                      .asMap()
+                                      .entries
+                                      .map(
+                                        (e) => QuizOption(
+                                          option: e.value.text.trim(),
+                                          isCorrect: e.key == _correctIdx,
+                                        ),
+                                      )
+                                      .toList();
+                              final question = QuizQuestion(
+                                question: _questionCtrl.text.trim(),
+                                options: options,
+                              );
+                              context.pop(question);
+                            }
+                            : null,
                     child: Text('Create', style: TextStyle(fontSize: 16.sp)),
-                    style:
-                    ElevatedButton.styleFrom(backgroundColor: AppColors.purple),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.purple,
+                    ),
                   ),
                 ],
               ),

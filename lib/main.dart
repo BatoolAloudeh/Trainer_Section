@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,14 +5,11 @@ import 'package:trainer_section/Bloc/cubit/Auth/logout.dart';
 import 'package:trainer_section/Bloc/cubit/Home/Courses/showStudentsInSections.dart';
 import 'package:trainer_section/Bloc/cubit/Profiles/Trainer.dart';
 import 'package:trainer_section/constant/constantKey/key.dart';
-import 'package:trainer_section/screen/Auth/Login.dart';
-import 'package:trainer_section/screen/Home/Courses/MainPage/ShowCourses.dart';
+import 'package:trainer_section/router/app-router.dart';
 import 'package:trainer_section/screen/Settings/DarkMode/ChangeMode.dart';
-import 'package:trainer_section/screen/Settings/DarkMode/SettingPage.dart';
-//
+
 import 'Bloc/cubit/Forum/AnswerCubit.dart';
 import 'Bloc/cubit/Forum/general Bloc.dart';
-import 'Bloc/cubit/Home/Courses/Files/upload.dart';
 import 'Bloc/cubit/Home/Courses/ShowCourses.dart';
 
 import 'Bloc/cubit/Settings/DarkMode/ChangeMode.dart';
@@ -27,21 +23,26 @@ import 'firebase_options.dart';
 import 'dart:html' as html;
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-
 import 'localization/app_localizations_setup.dart';
 
-// … باقي الاستيرادات (ThemeCubit, CoursesDashboard, LoginScreen, CacheHelper, DioHelper, …)
+import 'package:flutter/foundation.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 Future<void> _initFcmPreUI() async {
   final messaging = FirebaseMessaging.instance;
-  final perm = await messaging.requestPermission(alert: true, badge: true, sound: true);
+  final perm = await messaging.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
   if (perm.authorizationStatus != AuthorizationStatus.authorized) return;
 
   String? token;
   for (var i = 0; i < 3; i++) {
     try {
       token = await messaging.getToken(
-        vapidKey: 'BMUIu0ik_OZJ9r9n3GPXib5fouwP02aKUqHBPJZFio406nmC_henlk7OtEco9fc5xd7Q3q_tZM0RuP6oBBPqTPc',
+        vapidKey:
+            'BMUIu0ik_OZJ9r9n3GPXib5fouwP02aKUqHBPJZFio406nmC_henlk7OtEco9fc5xd7Q3q_tZM0RuP6oBBPqTPc',
       );
       if (token != null && token.isNotEmpty) break;
       await Future.delayed(const Duration(seconds: 1));
@@ -62,32 +63,38 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await _initFcmPreUI();
 
+  if (kIsWeb) {
+    usePathUrlStrategy(); // Without # in the link
+  }
+
   runApp(
     ScreenUtilInit(
       designSize: const Size(1440, 1024),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (_, __) => MultiBlocProvider(
-        providers: [
-          BlocProvider(create: (_) => ThemeCubit()),
-          BlocProvider(create: (_) => CoursesCubit()),
-          BlocProvider(create: (_) => StudentsInSectionCubit()),
-          BlocProvider(create: (_) => QuizCubit()),
-          BlocProvider(create: (_) => ForumCubit()),
-          BlocProvider(create: (_) => AnswerCubit()),
-          BlocProvider(create: (_) => LogoutCubit()),
-          BlocProvider(create: (_) => TrainerProfileCubit()),
-          // ← أضِف مزوّد اللغة
-          BlocProvider(create: (_) => LocaleCubit()),
-        ],
-        child: const RootApp(),
-      ),
+      builder:
+          (_, __) => MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => ThemeCubit()),
+              BlocProvider(create: (_) => CoursesCubit()),
+              BlocProvider(create: (_) => StudentsInSectionCubit()),
+              BlocProvider(create: (_) => QuizCubit()),
+              BlocProvider(create: (_) => ForumCubit()),
+              BlocProvider(create: (_) => AnswerCubit()),
+              BlocProvider(create: (_) => LogoutCubit()),
+              BlocProvider(create: (_) => TrainerProfileCubit()),
+              // ← أضِف مزوّد اللغة
+              BlocProvider(create: (_) => LocaleCubit()),
+            ],
+            child: const RootApp(),
+          ),
     ),
   );
 }
 
 class RootApp extends StatefulWidget {
   const RootApp({Key? key}) : super(key: key);
+
   @override
   State<RootApp> createState() => _RootAppState();
 }
@@ -97,8 +104,9 @@ class _RootAppState extends State<RootApp> {
   void initState() {
     super.initState();
     FirebaseMessaging.onMessage.listen((msg) async {
-      final title = msg.notification?.title ?? msg.data['title'] ?? 'Notification';
-      final body  = msg.notification?.body  ?? msg.data['body']  ?? '';
+      final title =
+          msg.notification?.title ?? msg.data['title'] ?? 'Notification';
+      final body = msg.notification?.body ?? msg.data['body'] ?? '';
 
       if (kIsWeb) {
         try {
@@ -118,13 +126,10 @@ class _RootAppState extends State<RootApp> {
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeCubit, ThemeMode>(
       builder: (context, themeMode) {
-        final token     = CacheHelper.getData(key: TOKENKEY)     as String?;
-        final trainerId = CacheHelper.getData(key: 'trainer_id') as int?;
-
         // ← لفّ MaterialApp بمحدد اللغة
         return BlocBuilder<LocaleCubit, Locale>(
           builder: (context, appLocale) {
-            return MaterialApp(
+            return MaterialApp.router(
               debugShowCheckedModeBanner: false,
               title: 'Trainer Section',
               theme: AppThemes.light,
@@ -133,13 +138,11 @@ class _RootAppState extends State<RootApp> {
 
               locale: appLocale,
               supportedLocales: AppLocalizationsSetup.supportedLocales,
-              localizationsDelegates: AppLocalizationsSetup.localizationsDelegates,
-              localeResolutionCallback: AppLocalizationsSetup.localeResolutionCallback,
-
-              home: (token != null && trainerId != null)
-                  ? CoursesDashboard(token: token, idTrainer: trainerId)
-                  : LoginScreen(),
-              routes: { SettingsPage.routeName: (_) => const SettingsPage() },
+              localizationsDelegates:
+                  AppLocalizationsSetup.localizationsDelegates,
+              localeResolutionCallback:
+                  AppLocalizationsSetup.localeResolutionCallback,
+              routerConfig: router,
             );
           },
         );

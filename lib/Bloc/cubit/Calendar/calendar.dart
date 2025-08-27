@@ -7,19 +7,15 @@ import '../../../network/local/cacheHelper.dart';
 import '../../../network/remote/dioHelper.dart';
 import '../../states/Calendar/calendar.dart';
 
-
 class ScheduleCubit extends Cubit<ScheduleState> {
   ScheduleCubit() : super(ScheduleInitial());
 
-
-  Future<void> fetchByDay({required String dayName, required String token}) async {
+  Future<void> fetchByDay({required String dayName}) async {
     emit(ScheduleLoading());
 
     try {
-
       final path = '${GET_SCHEDULE_BY_DAY}/$dayName';
       final response = await DioHelper.getData(url: path);
-
 
       if (response.statusCode == 200) {
         final json = response.data as Map<String, dynamic>;
@@ -29,9 +25,8 @@ class ScheduleCubit extends Cubit<ScheduleState> {
         emit(ScheduleError('Server returned ${response.statusCode}'));
       }
     } on DioError catch (e) {
-      final msg = e.response?.data['message'] ??
-          e.message ??
-          'Unknown Dio error';
+      final msg =
+          e.response?.data['message'] ?? e.message ?? 'Unknown Dio error';
       emit(ScheduleError(msg));
     } catch (e) {
       emit(ScheduleError(e.toString()));

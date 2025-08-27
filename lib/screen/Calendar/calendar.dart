@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,8 +9,7 @@ import '../../constant/ui/General constant/ConstantUi.dart';
 import '../../localization/app_localizations.dart';
 
 class CalendarPage extends StatefulWidget {
-  final String token;
-  const CalendarPage({Key? key, required this.token}) : super(key: key);
+  const CalendarPage({Key? key}) : super(key: key);
 
   @override
   _CalendarPageState createState() => _CalendarPageState();
@@ -24,7 +21,13 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime? _selectedDate;
 
   static const List<String> _weekDays = [
-    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
   ];
 
   @override
@@ -40,7 +43,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
   void _fetchForDate(DateTime date) {
     final dayName = DateFormat('EEEE').format(date).toLowerCase();
-    _cubit.fetchByDay(dayName: dayName, token: widget.token);
+    _cubit.fetchByDay(dayName: dayName);
   }
 
   @override
@@ -86,7 +89,11 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(1440, 1024), minTextAdapt: true);
+    ScreenUtil.init(
+      context,
+      designSize: const Size(1440, 1024),
+      minTextAdapt: true,
+    );
     final tr = AppLocalizations.of(context)?.translate;
 
     final days = _daysInMonth(_year, _month);
@@ -110,7 +117,11 @@ class _CalendarPageState extends State<CalendarPage> {
                     padding: EdgeInsets.symmetric(horizontal: 24.w),
                     decoration: BoxDecoration(
                       color: Theme.of(context).scaffoldBackgroundColor,
-                      border: Border(bottom: BorderSide(color: Colors.black12.withOpacity(0.06))),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.black12.withOpacity(0.06),
+                        ),
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -125,14 +136,24 @@ class _CalendarPageState extends State<CalendarPage> {
                           ),
                         ),
                         // Month navigation
-                        _RoundIconBtn(icon: Icons.chevron_left_rounded, onTap: _goToPrevMonth),
+                        _RoundIconBtn(
+                          icon: Icons.chevron_left_rounded,
+                          onTap: _goToPrevMonth,
+                        ),
                         SizedBox(width: 8.w),
                         _buildDropdown(
                           value: monthName,
-                          items: List.generate(12, (i) => DateFormat.MMMM().format(DateTime(0, i + 1))),
+                          items: List.generate(
+                            12,
+                            (i) => DateFormat.MMMM().format(DateTime(0, i + 1)),
+                          ),
                           onChanged: (m) {
                             if (m == null) return;
-                            final idx = DateFormat.MMMM().dateSymbols.MONTHS.indexOf(m) + 1;
+                            final idx =
+                                DateFormat.MMMM().dateSymbols.MONTHS.indexOf(
+                                  m,
+                                ) +
+                                1;
                             setState(() {
                               _month = idx;
                               _selectedDate = null;
@@ -142,7 +163,10 @@ class _CalendarPageState extends State<CalendarPage> {
                         SizedBox(width: 12.w),
                         _buildDropdown(
                           value: yearName,
-                          items: List.generate(7, (i) => '${DateTime.now().year - 3 + i}'),
+                          items: List.generate(
+                            7,
+                            (i) => '${DateTime.now().year - 3 + i}',
+                          ),
                           onChanged: (y) {
                             if (y == null) return;
                             setState(() {
@@ -152,7 +176,10 @@ class _CalendarPageState extends State<CalendarPage> {
                           },
                         ),
                         SizedBox(width: 8.w),
-                        _RoundIconBtn(icon: Icons.chevron_right_rounded, onTap: _goToNextMonth),
+                        _RoundIconBtn(
+                          icon: Icons.chevron_right_rounded,
+                          onTap: _goToNextMonth,
+                        ),
                       ],
                     ),
                   ),
@@ -166,7 +193,9 @@ class _CalendarPageState extends State<CalendarPage> {
                         decoration: BoxDecoration(
                           color: Theme.of(context).scaffoldBackgroundColor,
                           borderRadius: BorderRadius.circular(18.r),
-                          border: Border.all(color: Colors.black12.withOpacity(0.06)),
+                          border: Border.all(
+                            color: Colors.black12.withOpacity(0.06),
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.04),
@@ -181,21 +210,22 @@ class _CalendarPageState extends State<CalendarPage> {
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 4.w),
                               child: Row(
-                                children: _weekDays.map((d) {
-                                  return Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        tr?.call(d) ?? d,
-                                        style: TextStyle(
-                                          fontSize: 12.sp,
-                                          color: AppColors.t3,
-                                          fontWeight: FontWeight.w700,
-                                          letterSpacing: .3,
+                                children:
+                                    _weekDays.map((d) {
+                                      return Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            tr?.call(d) ?? d,
+                                            style: TextStyle(
+                                              fontSize: 12.sp,
+                                              color: AppColors.t3,
+                                              fontWeight: FontWeight.w700,
+                                              letterSpacing: .3,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
+                                      );
+                                    }).toList(),
                               ),
                             ),
                             SizedBox(height: 12.h),
@@ -205,15 +235,21 @@ class _CalendarPageState extends State<CalendarPage> {
                               child: GridView.builder(
                                 physics: const BouncingScrollPhysics(),
                                 itemCount: days.length,
-                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 7,
-                                  crossAxisSpacing: 12,
-                                  mainAxisSpacing: 12,
-                                ),
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 7,
+                                      crossAxisSpacing: 12,
+                                      mainAxisSpacing: 12,
+                                    ),
                                 itemBuilder: (_, i) {
                                   final dt = days[i];
-                                  final isSelected = dt != null && _selectedDate != null && DateUtils.isSameDay(dt, _selectedDate);
-                                  final isToday = dt != null && DateUtils.isSameDay(dt, today);
+                                  final isSelected =
+                                      dt != null &&
+                                      _selectedDate != null &&
+                                      DateUtils.isSameDay(dt, _selectedDate);
+                                  final isToday =
+                                      dt != null &&
+                                      DateUtils.isSameDay(dt, today);
 
                                   return _DayCell(
                                     date: dt,
@@ -230,7 +266,8 @@ class _CalendarPageState extends State<CalendarPage> {
                             Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                tr?.call('Tasks for the day') ?? 'Tasks for the day',
+                                tr?.call('Tasks for the day') ??
+                                    'Tasks for the day',
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w700,
@@ -245,7 +282,9 @@ class _CalendarPageState extends State<CalendarPage> {
                                 if (state is ScheduleLoading) {
                                   return Padding(
                                     padding: EdgeInsets.only(top: 8.h),
-                                    child: const Center(child: CircularProgressIndicator()),
+                                    child: const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
                                   );
                                 }
                                 if (state is ScheduleError) {
@@ -253,7 +292,10 @@ class _CalendarPageState extends State<CalendarPage> {
                                     padding: EdgeInsets.only(top: 8.h),
                                     child: Text(
                                       '${tr?.call('Error') ?? 'Error'}: ${state.message}',
-                                      style: TextStyle(color: Colors.red, fontSize: 14.sp),
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 14.sp,
+                                      ),
                                     ),
                                   );
                                 }
@@ -263,38 +305,69 @@ class _CalendarPageState extends State<CalendarPage> {
                                     return Padding(
                                       padding: EdgeInsets.only(top: 6.h),
                                       child: Text(
-                                        tr?.call('dont have tasks for today') ?? 'dont have tasks for today',
-                                        style: TextStyle(color: AppColors.t2, fontSize: 14.sp),
+                                        tr?.call('dont have tasks for today') ??
+                                            'dont have tasks for today',
+                                        style: TextStyle(
+                                          color: AppColors.t2,
+                                          fontSize: 14.sp,
+                                        ),
                                       ),
                                     );
                                   }
                                   return Column(
-                                    children: evs.map((e) {
-                                      return Container(
-                                        margin: EdgeInsets.only(bottom: 8.h),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(12.r),
-                                          border: Border.all(color: Colors.black12.withOpacity(0.06)),
-                                        ),
-                                        child: ListTile(
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                                          leading: Container(
-                                            width: 36.w,
-                                            height: 36.w,
-                                            decoration: BoxDecoration(
-                                              color: AppColors.purple.withOpacity(.12),
-                                              borderRadius: BorderRadius.circular(10.r),
+                                    children:
+                                        evs.map((e) {
+                                          return Container(
+                                            margin: EdgeInsets.only(
+                                              bottom: 8.h,
                                             ),
-                                            child: Icon(Icons.event, color: AppColors.purple, size: 20.sp),
-                                          ),
-                                          title: Text(e.course.name, style: TextStyle(fontWeight: FontWeight.w600)),
-                                          subtitle: Text(
-                                            '${e.section.name} • ${e.startTime} - ${e.endTime}',
-                                            style: TextStyle(color: AppColors.t3, fontSize: 12.sp),
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(12.r),
+                                              border: Border.all(
+                                                color: Colors.black12
+                                                    .withOpacity(0.06),
+                                              ),
+                                            ),
+                                            child: ListTile(
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                    horizontal: 12.w,
+                                                    vertical: 6.h,
+                                                  ),
+                                              leading: Container(
+                                                width: 36.w,
+                                                height: 36.w,
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.purple
+                                                      .withOpacity(.12),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        10.r,
+                                                      ),
+                                                ),
+                                                child: Icon(
+                                                  Icons.event,
+                                                  color: AppColors.purple,
+                                                  size: 20.sp,
+                                                ),
+                                              ),
+                                              title: Text(
+                                                e.course.name,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              subtitle: Text(
+                                                '${e.section.name} • ${e.startTime} - ${e.endTime}',
+                                                style: TextStyle(
+                                                  color: AppColors.t3,
+                                                  fontSize: 12.sp,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
                                   );
                                 }
                                 return const SizedBox();
@@ -333,7 +406,10 @@ class _CalendarPageState extends State<CalendarPage> {
         underline: const SizedBox(),
         isDense: true,
         style: TextStyle(color: AppColors.darkBlue, fontSize: 13.sp),
-        items: items.map((v) => DropdownMenuItem<String>(value: v, child: Text(v))).toList(),
+        items:
+            items
+                .map((v) => DropdownMenuItem<String>(value: v, child: Text(v)))
+                .toList(),
         onChanged: onChanged,
       ),
     );
@@ -343,7 +419,9 @@ class _CalendarPageState extends State<CalendarPage> {
 class _RoundIconBtn extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
+
   const _RoundIconBtn({required this.icon, required this.onTap});
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -382,7 +460,8 @@ class _DayCell extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    Color border = isSelected ? AppColors.orange : AppColors.purple.withOpacity(.35);
+    Color border =
+        isSelected ? AppColors.orange : AppColors.purple.withOpacity(.35);
     Color text = isSelected ? Colors.white : AppColors.darkBlue;
 
     return AnimatedContainer(
@@ -412,7 +491,10 @@ class _DayCell extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14.r),
-                    border: Border.all(color: AppColors.orange.withOpacity(.5), width: 1),
+                    border: Border.all(
+                      color: AppColors.orange.withOpacity(.5),
+                      width: 1,
+                    ),
                   ),
                 ),
               ),
@@ -434,7 +516,10 @@ class _DayCell extends StatelessWidget {
                 top: 6.h,
                 child: Text(
                   DateFormat.MMM().format(date!),
-                  style: TextStyle(fontSize: 10.sp, color: isSelected ? Colors.white70 : AppColors.t3),
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    color: isSelected ? Colors.white70 : AppColors.t3,
+                  ),
                 ),
               ),
           ],

@@ -1,9 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trainer_section/constant/ui/Colors/colors.dart';
+import 'package:trainer_section/router/route-paths.dart';
 import 'package:trainer_section/screen/Auth/Login.dart';
 
 import '../../Bloc/cubit/Auth/checkCode.dart';
@@ -24,7 +25,6 @@ class _CheckCodeScreenState extends State<CheckCodeScreen> {
   final TextEditingController codeController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
-
   @override
   void initState() {
     super.initState();
@@ -34,9 +34,7 @@ class _CheckCodeScreenState extends State<CheckCodeScreen> {
   void _loadLanguagePreference() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? savedLanguage = pref.getString('language');
-    if (savedLanguage != null) {
-
-    }
+    if (savedLanguage != null) {}
   }
 
   @override
@@ -48,7 +46,8 @@ class _CheckCodeScreenState extends State<CheckCodeScreen> {
         body: Center(
           child: Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width / 8),
+              horizontal: MediaQuery.of(context).size.width / 8,
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -74,15 +73,10 @@ class _CheckCodeScreenState extends State<CheckCodeScreen> {
     return BlocConsumer<CheckCodeCubit, CheckCodeState>(
       listener: (context, state) {
         if (state is CheckCodeSuccess) {
-
-          navigateTo(context, LoginScreen());
+          context.go(RoutePaths.login);
         } else if (state is CheckCodeError) {
-
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.error),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(state.error), backgroundColor: Colors.red),
           );
         }
       },
@@ -92,7 +86,8 @@ class _CheckCodeScreenState extends State<CheckCodeScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              AppLocalizations.of(context)?.translate("verification_system") ?? "Verification System",
+              AppLocalizations.of(context)?.translate("verification_system") ??
+                  "Verification System",
 
               style: TextStyle(
                 color: AppColors.darkBlue,
@@ -102,9 +97,15 @@ class _CheckCodeScreenState extends State<CheckCodeScreen> {
             ),
             SizedBox(height: 10),
             Text(
-              AppLocalizations.of(context)?.translate("verification_instruction") ?? "Enter the verification code sent to your email.",
+              AppLocalizations.of(
+                    context,
+                  )?.translate("verification_instruction") ??
+                  "Enter the verification code sent to your email.",
 
-              style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.black54,
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.start,
             ),
             SizedBox(height: 20),
@@ -137,27 +138,27 @@ class _CheckCodeScreenState extends State<CheckCodeScreen> {
           state is CheckCodeLoading
               ? CircularProgressIndicator(color: AppColors.darkBlue)
               : Center(
-            child: ElevatedButton.icon(
-              label: Text(
-                AppLocalizations.of(context)?.translate("next") ?? "Next",
+                child: ElevatedButton.icon(
+                  label: Text(
+                    AppLocalizations.of(context)?.translate("next") ?? "Next",
 
-                style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.darkBlue,
+                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 35),
+                  ),
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      final token = codeController.text;
+                      BlocProvider.of<CheckCodeCubit>(
+                        context,
+                      ).verifyEmailToken(token: token);
+                    }
+                  },
+                  icon: Icon(Icons.check, color: Colors.white),
+                ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.darkBlue,
-                padding:
-                EdgeInsets.symmetric(vertical: 16, horizontal: 35),
-              ),
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  final token = codeController.text;
-                  BlocProvider.of<CheckCodeCubit>(context)
-                      .verifyEmailToken(token: token);
-                }
-              },
-              icon: Icon(Icons.check, color: Colors.white),
-            ),
-          ),
         ],
       ),
     );

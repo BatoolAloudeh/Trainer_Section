@@ -497,23 +497,14 @@
 //   }
 // }
 
-
-
-
-
-
-
-
-
-
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_network/image_network.dart';
 import 'package:intl/intl.dart';
+import 'package:trainer_section/network/local/cacheHelper.dart';
+import 'package:trainer_section/router/route-paths.dart';
 
 import '../../../Bloc/cubit/Profiles/Trainer.dart';
 import '../../../Bloc/states/Profiles/Trainer.dart';
@@ -521,16 +512,9 @@ import '../../../constant/constantKey/key.dart';
 import '../../../constant/ui/Colors/colors.dart';
 import '../../../constant/ui/General constant/ConstantUi.dart';
 import '../../../localization/app_localizations.dart';
-import '../../Auth/resetPassword.dart';
 
 class TrainerProfilePage extends StatefulWidget {
-  final String token;
-  final int idTrainer;
-  const TrainerProfilePage({
-    Key? key,
-    required this.token,
-    required this.idTrainer,
-  }) : super(key: key);
+  const TrainerProfilePage({Key? key}) : super(key: key);
 
   @override
   _TrainerProfilePageState createState() => _TrainerProfilePageState();
@@ -538,11 +522,15 @@ class TrainerProfilePage extends StatefulWidget {
 
 class _TrainerProfilePageState extends State<TrainerProfilePage> {
   late final TrainerProfileCubit _cubit;
+  late final String token;
+  late final int idTrainer;
 
   @override
   void initState() {
     super.initState();
     _cubit = TrainerProfileCubit()..fetchProfile();
+    token = CacheHelper.getData(key: TOKENKEY) ?? '';
+    idTrainer = CacheHelper.getData(key: 'idTrainer') ?? 0;
   }
 
   @override
@@ -557,148 +545,164 @@ class _TrainerProfilePageState extends State<TrainerProfilePage> {
 
     return ScreenUtilInit(
       designSize: const Size(1440, 1024),
-      builder: (_, __) => BlocProvider.value(
-        value: _cubit,
-        child: Scaffold(
-          backgroundColor: theme.scaffoldBackgroundColor,
-          body: Row(
-            children: [
-              const AppSidebar(selectedItem: SidebarItem.Profile),
+      builder:
+          (_, __) => BlocProvider.value(
+            value: _cubit,
+            child: Scaffold(
+              backgroundColor: theme.scaffoldBackgroundColor,
+              body: Row(
+                children: [
+                  const AppSidebar(selectedItem: SidebarItem.profile),
 
-              // ===== مساحة المحتوى فقط (يمين الـsidebar) =====
-              Expanded(
-                child: BlocBuilder<TrainerProfileCubit, TrainerProfileState>(
-                  builder: (ctx, state) {
-                    if (state is TrainerProfileLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (state is TrainerProfileError) {
-                      return Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(24.w),
-                          child: Text(
-                            state.message,
-                            style: TextStyle(color: Colors.red, fontSize: 16.sp),
-                          ),
-                        ),
-                      );
-                    }
-                    if (state is TrainerProfileLoaded) {
-                      final p = state.profile;
-                      final photoUrl = (p.photo?.isNotEmpty == true)
-                          ? '$BASE_URL${p.photo}'
-                          : null;
-
-                      // ارتفاع الشريط العلوي المحلي
-                      final topBarH = 64.h;
-
-                      return Column(
-                        children: [
-                          // ===== AppBar محلي داخل منطقة المحتوى =====
-                          Container(
-                            height: topBarH,
-                            padding: EdgeInsets.symmetric(horizontal: 24.w),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: theme.scaffoldBackgroundColor,
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Colors.black12.withOpacity(0.06),
-                                  width: 1,
+                  // ===== مساحة المحتوى فقط (يمين الـsidebar) =====
+                  Expanded(
+                    child: BlocBuilder<
+                      TrainerProfileCubit,
+                      TrainerProfileState
+                    >(
+                      builder: (ctx, state) {
+                        if (state is TrainerProfileLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        if (state is TrainerProfileError) {
+                          return Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(24.w),
+                              child: Text(
+                                state.message,
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 16.sp,
                                 ),
                               ),
                             ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    p.name,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 26.sp,
-                                      fontWeight: FontWeight.w800,
-                                      color: AppColors.darkBlue,
+                          );
+                        }
+                        if (state is TrainerProfileLoaded) {
+                          final p = state.profile;
+                          final photoUrl =
+                              (p.photo?.isNotEmpty == true)
+                                  ? '$BASE_URL${p.photo}'
+                                  : null;
+
+                          // ارتفاع الشريط العلوي المحلي
+                          final topBarH = 64.h;
+
+                          return Column(
+                            children: [
+                              // ===== AppBar محلي داخل منطقة المحتوى =====
+                              Container(
+                                height: topBarH,
+                                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: theme.scaffoldBackgroundColor,
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Colors.black12.withOpacity(0.06),
+                                      width: 1,
                                     ),
                                   ),
                                 ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        p.name,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 26.sp,
+                                          fontWeight: FontWeight.w800,
+                                          color: AppColors.darkBlue,
+                                        ),
+                                      ),
+                                    ),
 
-                                // صورة صغيرة يمين الـ AppBar مثل التصميم
-                                CircleAvatar(
-                                  radius: 18.r,
-                                  backgroundColor: theme.cardColor,
-                                  child: ClipOval(
-                                    child: (photoUrl != null)
-                                        ? ImageNetwork(
-                                      image: photoUrl,
-                                      width: 36.r,
-                                      height: 36.r,
-                                      fitAndroidIos: BoxFit.cover,
-                                    )
-                                        : Icon(Icons.person,
-                                        size: 18.sp, color: AppColors.t3),
-                                  ),
+                                    // صورة صغيرة يمين الـ AppBar مثل التصميم
+                                    CircleAvatar(
+                                      radius: 18.r,
+                                      backgroundColor: theme.cardColor,
+                                      child: ClipOval(
+                                        child:
+                                            (photoUrl != null)
+                                                ? ImageNetwork(
+                                                  image: photoUrl,
+                                                  width: 36.r,
+                                                  height: 36.r,
+                                                  fitAndroidIos: BoxFit.cover,
+                                                )
+                                                : Icon(
+                                                  Icons.person,
+                                                  size: 18.sp,
+                                                  color: AppColors.t3,
+                                                ),
+                                      ),
+                                    ),
+
+                                    IconButton(
+                                      tooltip: 'Settings',
+                                      onPressed: () {
+                                        context.go(RoutePaths.profileSettings);
+                                      },
+                                      icon: Icon(
+                                        Icons.settings_rounded,
+                                        size: 22.sp,
+                                        color: AppColors.t3,
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                              ),
 
-                                IconButton(
-                                  tooltip: 'Settings',
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => PrivacySecurityPage(
-                                          prefilledEmail: p.email,
+                              // ===== المحتوى =====
+                              Expanded(
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    return SingleChildScrollView(
+                                      child: Container(
+                                        // نملأ ارتفاع المنطقة المتاحة تحت الـ AppBar
+                                        constraints: BoxConstraints(
+                                          minHeight: constraints.maxHeight,
+                                        ),
+                                        // هذا ما يجعل المحتوى يتوسّط عموديًا وأفقيًا
+                                        alignment: Alignment.center,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 40.w,
+                                          vertical: 28.h,
+                                        ),
+                                        child: _CenteredContent(
+                                          photoUrl: photoUrl,
+                                          name: p.name,
+                                          specialization: p.specialization,
+                                          phone: p.phone,
+                                          email: p.email,
+                                          bio: _composeBio(
+                                            p.experience,
+                                            p.specialization,
+                                          ),
+                                          birthDate: DateFormat(
+                                            'yyyy-MM-dd',
+                                          ).format(p.createdAt),
+                                          gender: p.gender,
                                         ),
                                       ),
                                     );
                                   },
-                                  icon: Icon(
-                                    Icons.settings_rounded,
-                                    size: 22.sp,
-                                    color: AppColors.t3,
-                                  ),
                                 ),
-                              ],
-                            ),
-                          ),
-
-                          // ===== المحتوى =====
-                          Expanded(
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                return SingleChildScrollView(
-                                  child: Container(
-                                    // نملأ ارتفاع المنطقة المتاحة تحت الـ AppBar
-                                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                                    // هذا ما يجعل المحتوى يتوسّط عموديًا وأفقيًا
-                                    alignment: Alignment.center,
-                                    padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 28.h),
-                                    child: _CenteredContent(
-                                      photoUrl: photoUrl,
-                                      name: p.name,
-                                      specialization: p.specialization,
-                                      phone: p.phone,
-                                      email: p.email,
-                                      bio: _composeBio(p.experience, p.specialization),
-                                      birthDate: DateFormat('yyyy-MM-dd').format(p.createdAt),
-                                      gender: p.gender,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-
-                        ],
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
+                              ),
+                            ],
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
   }
 
@@ -740,70 +744,65 @@ class _CenteredContent extends StatelessWidget {
     // أقصى عرض مشابه للصورة
     final maxW = 1140.w;
 
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxW),
+        child: LayoutBuilder(
+          builder: (context, c) {
+            final wide = c.maxWidth >= 980.w;
 
-    return
-      Center(child:
-      ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: maxW),
-      child: LayoutBuilder(
-        builder: (context, c) {
-          final wide = c.maxWidth >= 980.w;
+            if (!wide) {
+              // موبايل/ضيّق: كولمن فوق بعض
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _AvatarBlock(
+                    photoUrl: photoUrl,
+                    name: name,
+                    specialization: specialization,
+                    phone: phone,
+                    email: email,
+                    // أصغر على الشاشات الضيقة
+                    avatarSize: 220.r,
+                  ),
+                  SizedBox(height: 28.h),
+                  _AboutBlock(bio: bio, birthDate: birthDate, gender: gender),
+                ],
+              );
+            }
 
-          if (!wide) {
-            // موبايل/ضيّق: كولمن فوق بعض
-            return Column(
-              mainAxisSize: MainAxisSize.min,
+            // شاشة عريضة: صف مثل التصميم
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _AvatarBlock(
-                  photoUrl: photoUrl,
-                  name: name,
-                  specialization: specialization,
-                  phone: phone,
-                  email: email,
-                  // أصغر على الشاشات الضيقة
-                  avatarSize: 220.r,
+                // العمود الأيسر: صورة كبيرة + الاسم + الوظيفة + أزرار
+                SizedBox(
+                  width: 460.w,
+                  child: _AvatarBlock(
+                    photoUrl: photoUrl,
+                    name: name,
+                    specialization: specialization,
+                    phone: phone,
+                    email: email,
+                    avatarSize: 300.r, // قريب جدًا من حجم الصورة في اللقطة
+                  ),
                 ),
-                SizedBox(height: 28.h),
-                _AboutBlock(
-                  bio: bio,
-                  birthDate: birthDate,
-                  gender: gender,
+
+                SizedBox(width: 80.w),
+
+                // العمود الأيمن: About + Birth/Gender
+                Expanded(
+                  child: _AboutBlock(
+                    bio: bio,
+                    birthDate: birthDate,
+                    gender: gender,
+                  ),
                 ),
               ],
             );
-          }
-
-          // شاشة عريضة: صف مثل التصميم
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // العمود الأيسر: صورة كبيرة + الاسم + الوظيفة + أزرار
-              SizedBox(
-                width: 460.w,
-                child: _AvatarBlock(
-                  photoUrl: photoUrl,
-                  name: name,
-                  specialization: specialization,
-                  phone: phone,
-                  email: email,
-                  avatarSize: 300.r, // قريب جدًا من حجم الصورة في اللقطة
-                ),
-              ),
-
-              SizedBox(width: 80.w),
-
-              // العمود الأيمن: About + Birth/Gender
-              Expanded(
-                child: _AboutBlock(
-                  bio: bio,
-                  birthDate: birthDate,
-                  gender: gender,
-                ),
-              ),
-            ],
-          );
-        },
-      ),),
+          },
+        ),
+      ),
     );
   }
 }
@@ -839,17 +838,22 @@ class _AvatarBlock extends StatelessWidget {
           height: avatarSize,
           decoration: const BoxDecoration(shape: BoxShape.circle),
           child: ClipOval(
-            child: (photoUrl != null)
-                ? ImageNetwork(
-              image: photoUrl!,
-              width: avatarSize,
-              height: avatarSize,
-              fitAndroidIos: BoxFit.cover,
-            )
-                : Container(
-              color: theme.cardColor,
-              child: Icon(Icons.person, size: avatarSize * .38, color: AppColors.t3),
-            ),
+            child:
+                (photoUrl != null)
+                    ? ImageNetwork(
+                      image: photoUrl!,
+                      width: avatarSize,
+                      height: avatarSize,
+                      fitAndroidIos: BoxFit.cover,
+                    )
+                    : Container(
+                      color: theme.cardColor,
+                      child: Icon(
+                        Icons.person,
+                        size: avatarSize * .38,
+                        color: AppColors.t3,
+                      ),
+                    ),
           ),
         ),
 
@@ -933,12 +937,10 @@ class _AboutBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context)?.translate;
 
-    return
-
-      Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 100,),
+        SizedBox(height: 100),
         // عنوان About
         Text(
           tr?.call("About") ?? "About",
@@ -961,15 +963,12 @@ class _AboutBlock extends StatelessWidget {
 
         // صف المعلومات: Birth date / Gender على شكل Pills
         Row(
-
           children: [
             Expanded(
               child: _InfoPill(
-
                 icon: Icons.cake_outlined,
                 title: tr?.call("Birth date") ?? "Birth date",
                 value: birthDate,
-
               ),
             ),
             SizedBox(width: 18.w),
@@ -983,7 +982,6 @@ class _AboutBlock extends StatelessWidget {
           ],
         ),
       ],
-
     );
   }
 }
@@ -994,7 +992,12 @@ class _SquareAction extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  const _SquareAction({required this.icon, required this.label, required this.onTap});
+
+  const _SquareAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1027,7 +1030,9 @@ class _SquareAction extends StatelessWidget {
 class _MiniChip extends StatelessWidget {
   final IconData icon;
   final String text;
+
   const _MiniChip({required this.icon, required this.text});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1053,7 +1058,12 @@ class _InfoPill extends StatelessWidget {
   final IconData icon;
   final String title;
   final String value;
-  const _InfoPill({required this.icon, required this.title, required this.value});
+
+  const _InfoPill({
+    required this.icon,
+    required this.title,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1063,7 +1073,7 @@ class _InfoPill extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(40.r),
-        border: Border.all(color:Colors.grey),
+        border: Border.all(color: Colors.grey),
       ),
       child: Row(
         children: [
