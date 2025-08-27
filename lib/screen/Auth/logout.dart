@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:trainer_section/constant/ui/General%20constant/ConstantUi.dart';
 import 'package:trainer_section/screen/Auth/Login.dart';
+import 'package:trainer_section/screen/Home/Courses/MainPage/ShowCourses.dart';
 
 import '../../Bloc/cubit/Auth/logout.dart';
 import '../../Bloc/states/Auth/logout.dart';
@@ -16,9 +17,10 @@ import 'dart:ui';
 
 class LogoutPage extends StatelessWidget {
   const LogoutPage({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
+    final token = CacheHelper.getData(key: TOKENKEY) as String;
+    final trainerId = CacheHelper.getData(key: 'trainer_id') as int;
     return BlocConsumer<LogoutCubit, LogoutState>(
       listener: (context, state) {
         if (state is LogoutSuccess) {
@@ -91,6 +93,33 @@ class LogoutPage extends StatelessWidget {
                       )
                           : Text(
                         AppLocalizations.of(context)?.translate("logout") ?? "Logout"
+                        ,
+
+                        style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 22.h),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 46.h,
+                    child: ElevatedButton(
+                      // ✅ مباشرة: استدعِ تسجيل الخروج بدون أي Dialog
+
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.purple,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                        elevation: 0,
+                      ),
+                      onPressed: () { navigateTo(context, CoursesDashboard(token: token, idTrainer: trainerId)); },
+                      child: isLoading
+                          ? SizedBox(
+                        width: 18.r,
+                        height: 18.r,
+                        child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                          : Text(
+                        AppLocalizations.of(context)?.translate("cancel") ?? "cancel"
                         ,
 
                         style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w700),

@@ -1,10 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:trainer_section/screen/Auth/Login.dart';
-import 'package:trainer_section/screen/Home/Courses/Details/MainCourseDetails.dart';
-import 'package:trainer_section/screen/Home/tests/TestsPage.dart';
 
 import '../../../Bloc/cubit/tests/create test.dart';
 import '../../../Bloc/states/tests/create test.dart';
@@ -12,17 +8,24 @@ import '../../../localization/app_localizations.dart';
 import '../../../models/tests/create test.dart';
 import '../../../constant/ui/Colors/colors.dart';
 import '../../../constant/ui/General constant/ConstantUi.dart';
+import 'package:trainer_section/screen/Home/Courses/Details/MainCourseDetails.dart';
 
 class CreateQuizPage extends StatefulWidget {
-  final int    sectionId;
+  final int sectionId;
   final String token;
   final String CourseName;
+  final int idTrainer;
+  final String time;
+  final String day;
 
   const CreateQuizPage({
     Key? key,
     required this.sectionId,
     required this.token,
     required this.CourseName,
+    required this.idTrainer,
+    required this.time,
+    required this.day,
   }) : super(key: key);
 
   @override
@@ -33,18 +36,37 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
   final _titleCtrl = TextEditingController();
   final List<_QuestionForm> _forms = [];
 
+  // ✅ استخدم نسخة واحدة من الكيوبت عبر الصفحة كلها
+  late final QuizCubit _quizCubit;
+
   @override
   void initState() {
     super.initState();
+    _quizCubit = QuizCubit();       // ← نسخة واحدة
     _addQuestion();
   }
 
-  void _addQuestion()        => setState(() => _forms.add(_QuestionForm()));
-  void _removeQuestion(int i)=> setState(() => _forms.removeAt(i));
+  @override
+  void dispose() {
+    _quizCubit.close();
+    _titleCtrl.dispose();
+    for (final q in _forms) {
+      q.questionCtrl.dispose();
+      for (final o in q.optionCtrls) {
+        o.dispose();
+      }
+    }
+    super.dispose();
+  }
+
+  void _addQuestion() => setState(() => _forms.add(_QuestionForm()));
+  void _removeQuestion(int i) => setState(() => _forms.removeAt(i));
 
   bool get _canSubmit {
     if (_titleCtrl.text.trim().isEmpty) return false;
-    for (var f in _forms) if (!f.isValid) return false;
+    for (var f in _forms) {
+      if (!f.isValid) return false;
+    }
     return true;
   }
 
@@ -52,59 +74,50 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
     final questions = _forms.map((f) {
       final opts = f.optionCtrls.asMap().entries.map((e) {
         return QuizOption(
-          option:    e.value.text.trim(),
+          option: e.value.text.trim(),
           isCorrect: e.key == f.correctIndex,
         );
       }).toList();
       return QuizQuestion(
         question: f.questionCtrl.text.trim(),
-        options:  opts,
+        options: opts,
       );
     }).toList();
 
     final quiz = Quiz(
-      title:            _titleCtrl.text.trim(),
-      courseSectionId:  widget.sectionId,
-      questions:        questions,
+      title: _titleCtrl.text.trim(),
+      courseSectionId: widget.sectionId,
+      questions: questions,
     );
 
-    await context.read<QuizCubit>().createQuiz(
-      token: widget.token,
-      quiz:  quiz,
-    );
+    // ✅ استخدم نفس النسخة المزوّدة في BlocProvider.value
+    await _quizCubit.createQuiz(token: widget.token, quiz: quiz);
   }
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(
-      context,
-      designSize: const Size(1440, 1024),
-      minTextAdapt: true,
-    );
-
+    ScreenUtil.init(context, designSize: const Size(1440, 1024), minTextAdapt: true);
     final tr = AppLocalizations.of(context)?.translate;
 
-    return BlocProvider(
-      create: (_) => QuizCubit(),
+    return BlocProvider.value(
+      // ✅ نمرّر نفس النسخة (بدون إنشاء جديد)
+      value: _quizCubit,
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Row(
           children: [
             const AppSidebar(selectedItem: SidebarItem.courses),
-
             Expanded(
               child: Padding(
                 padding: EdgeInsets.all(24.w),
                 child: Column(
                   children: [
-                    // ===== شريط علوي داخل المحتوى =====
+                    // ===== شريط علوي =====
                     Container(
                       height: 56.h,
                       padding: EdgeInsets.symmetric(horizontal: 8.w),
                       decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(color: Colors.black12.withOpacity(.06)),
-                        ),
+                        border: Border(bottom: BorderSide(color: Colors.black12.withOpacity(.06))),
                       ),
                       child: Row(
                         children: [
@@ -142,7 +155,7 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
 
                     SizedBox(height: 20.h),
 
-                    // ===== حاوية المحتوى =====
+                    // ===== المحتوى =====
                     Expanded(
                       child: Container(
                         constraints: BoxConstraints(maxWidth: 1100.w),
@@ -172,7 +185,6 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
                             ),
                             SizedBox(height: 8.h),
 
-                            // ===== حقل العنوان =====
                             TextField(
                               controller: _titleCtrl,
                               decoration: InputDecoration(
@@ -197,24 +209,21 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
 
                             SizedBox(height: 16.h),
 
-                            // ===== قائمة الأسئلة =====
                             Expanded(
                               child: ListView.builder(
                                 padding: EdgeInsets.only(bottom: 12.h),
                                 itemCount: _forms.length,
                                 itemBuilder: (_, i) => _QuestionCard(
-                                  form:      _forms[i],
-                                  index:     i + 1,
-                                  onRemove:  _forms.length > 1 ? () => _removeQuestion(i) : null,
+                                  form: _forms[i],
+                                  index: i + 1,
+                                  onRemove: _forms.length > 1 ? () => _removeQuestion(i) : null,
                                   onChanged: () => setState(() {}),
                                 ),
                               ),
                             ),
 
-                            // ===== أزرار أسفل =====
                             Row(
                               children: [
-                                // إضافة سؤال
                                 FilledButton.icon(
                                   onPressed: _addQuestion,
                                   style: FilledButton.styleFrom(
@@ -230,16 +239,26 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
                                 ),
                                 const Spacer(),
 
-                                // إنشاء الاختبار
                                 BlocConsumer<QuizCubit, QuizState>(
                                   listener: (ctx, state) {
                                     if (state is QuizSuccess) {
-                                      debugPrint('✅ QuizSuccess – Pop true');
-                                      if (mounted) {
-                                        Future.microtask(() {
-                                          Navigator.of(context, rootNavigator: true).pop(true);
-                                        });
-                                      }
+                                      // ✅ تنقّل آمن بعد النجاح
+                                      if (!mounted) return;
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => CourseDetailsPage(
+                                            idTrainer: widget.idTrainer,
+                                            sectionId: widget.sectionId,
+                                            title: widget.CourseName,
+                                            time: widget.time,
+                                            day: widget.day,
+                                            token: widget.token,
+                                            // (اختياري) لو ضفت باراميتر initialTab في CourseDetailsPage:
+                                            // initialTab: CourseDetailTab.quizzes,
+                                          ),
+                                        ),
+                                      );
                                     }
                                     if (state is QuizFailure) {
                                       ScaffoldMessenger.of(context).showSnackBar(
@@ -286,11 +305,11 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
   }
 }
 
-/* ===================== Models for the form (unchanged logic) ===================== */
+/* ===================== نموذج بيانات الفورم ===================== */
 
 class _QuestionForm {
   final questionCtrl = TextEditingController();
-  final optionCtrls  = <TextEditingController>[];
+  final optionCtrls = <TextEditingController>[];
   int? correctIndex;
 
   _QuestionForm() {
@@ -320,7 +339,7 @@ class _QuestionForm {
   }
 }
 
-/* ===================== UI: Question Card ===================== */
+/* ===================== بطاقة السؤال ===================== */
 
 class _QuestionCard extends StatefulWidget {
   final _QuestionForm form;
@@ -343,7 +362,7 @@ class _QuestionCard extends StatefulWidget {
 class _QuestionCardState extends State<_QuestionCard> {
   @override
   Widget build(BuildContext context) {
-    final f  = widget.form;
+    final f = widget.form;
     final tr = AppLocalizations.of(context)?.translate;
 
     return Container(
@@ -364,8 +383,6 @@ class _QuestionCardState extends State<_QuestionCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-          // رأس البطاقة: شارة رقم السؤال + حذف
           Row(
             children: [
               Container(
@@ -397,7 +414,6 @@ class _QuestionCardState extends State<_QuestionCard> {
           ),
           SizedBox(height: 12.h),
 
-          // حقل السؤال
           Text(
             tr?.call("question") ?? "Question",
             style: TextStyle(
@@ -428,7 +444,6 @@ class _QuestionCardState extends State<_QuestionCard> {
           ),
           SizedBox(height: 14.h),
 
-          // الخيارات
           Text(
             tr?.call("option") ?? "Option",
             style: TextStyle(

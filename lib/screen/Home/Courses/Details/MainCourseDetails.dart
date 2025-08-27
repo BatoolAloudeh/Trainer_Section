@@ -218,7 +218,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
         return TestsPage(
           courseName: widget.title,
           sectionId: widget.sectionId,
-          token: widget.token,
+          token: widget.token, idTrainer: widget.idTrainer,day:widget.day ,time:widget.time ,
         );
     }
   }
@@ -446,10 +446,10 @@ class _SegmentedTabs extends StatelessWidget {
     final isC = selected == CourseDetailTab.files;
     final isR = selected == CourseDetailTab.quizzes;
 
-    // نحسب محاذاة المؤشر: يسار / وسط / يمين
-    final Alignment indicatorAlign = isL
-        ? Alignment.centerLeft
-        : (isC ? Alignment.center : Alignment.centerRight);
+    // ✅ استخدم AlignmentDirectional بدل Alignment
+    final AlignmentGeometry indicatorAlign = isL
+        ? AlignmentDirectional.centerStart
+        : (isC ? AlignmentDirectional.center : AlignmentDirectional.centerEnd);
 
     return Semantics(
       label: 'Course tabs',
@@ -462,39 +462,42 @@ class _SegmentedTabs extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            // المؤشر بدون Positioned
+            // ✅ هذا المؤشر الآن ينقلب تلقائيًا مع RTL/LTR
             AnimatedAlign(
               alignment: indicatorAlign,
               duration: const Duration(milliseconds: 220),
               curve: Curves.easeOut,
-              child: FractionallySizedBox(
+              child: const FractionallySizedBox(
                 widthFactor: 1 / 3, // ثلث العرض دائمًا
                 heightFactor: 1,
-                child: Container(
-                  margin: EdgeInsets.all(2), // مسافة خفيفة عن الإطار
-                  decoration: BoxDecoration(
-                    color: AppColors.darkBlue.withOpacity(.07),
-                    borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: EdgeInsets.all(2),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Color(0x14000000), // أي لون نصف شفاف
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
                   ),
                 ),
               ),
             ),
 
-            // عناصر التبويب
+            // ✅ خَلّي Row يتبع اتجاه الواجهة الحالية
             Row(
+              textDirection: Directionality.of(context),
               children: [
                 _SegItem(
-                  label: leftLabel,
+                  label: leftLabel,   // "الطلاب"
                   active: isL,
                   onTap: () => onSelect(CourseDetailTab.students),
                 ),
                 _SegItem(
-                  label: centerLabel,
+                  label: centerLabel, // "الملفات"
                   active: isC,
                   onTap: () => onSelect(CourseDetailTab.files),
                 ),
                 _SegItem(
-                  label: rightLabel,
+                  label: rightLabel,  // "الاختبارات"
                   active: isR,
                   onTap: () => onSelect(CourseDetailTab.quizzes),
                 ),
@@ -506,6 +509,7 @@ class _SegmentedTabs extends StatelessWidget {
     );
   }
 }
+
 
 class _SegItem extends StatefulWidget {
   final String label;

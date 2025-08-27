@@ -25,12 +25,14 @@ class TestsPage extends StatelessWidget {
   final String courseName;
   final int sectionId;
   final String token;
-
+  final int idTrainer;
+  final String time;
+  final String day;
   const TestsPage({
     Key? key,
     required this.courseName,
     required this.sectionId,
-    required this.token,
+    required this.token, required this.idTrainer, required this.time, required this.day,
   }) : super(key: key);
 
   @override
@@ -89,7 +91,7 @@ class TestsPage extends StatelessWidget {
         child: _TestsView(
           courseName: courseName,
           sectionId: sectionId,
-          token: token,
+          token: token, idTrainer: idTrainer,day: day,time: time,
         ),
       ),
     );
@@ -100,12 +102,14 @@ class _TestsView extends StatelessWidget {
   final String courseName;
   final int sectionId;
   final String token;
-
+  final int idTrainer;
+  final String time;
+  final String day;
   const _TestsView({
     Key? key,
     required this.courseName,
     required this.sectionId,
-    required this.token,
+    required this.token, required this.idTrainer, required this.time, required this.day,
   }) : super(key: key);
 
   @override
@@ -389,7 +393,7 @@ class _TestsView extends StatelessWidget {
                         builder: (_) => CreateQuizPage(
                           sectionId: sectionId,
                           token: token,
-                          CourseName: courseName,
+                          CourseName: courseName, idTrainer: idTrainer,day:day ,time:time ,
                         ),
                       ),
                     );
